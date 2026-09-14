@@ -4,57 +4,132 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mes Cours — Bibliothèque</title>
+<!-- Pour ton icône de page (favicon) : mets ton fichier (ex: favicon.png ou favicon.ico)
+     dans le même dossier que ce fichier html, puis remplace "favicon.png" ci-dessous par son nom. -->
+<link rel="icon" type="image/png" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0a0d12;
-  --panel:#11161d;
-  --panel-2:#161c25;
-  --border:#232b37;
-  --text:#d5dbe3;
-  --text-dim:#7c8798;
-  --amber:#e3b341;
-  --green:#7ee787;
-  --red:#ff7b72;
-  --blue:#58a6ff;
-  --mono:'JetBrains Mono', ui-monospace, monospace;
-  --sans:'Inter', system-ui, sans-serif;
+  --bg:#0a0d12; --panel:#11161d; --panel-2:#161c25; --border:#232b37;
+  --text:#d5dbe3; --text-dim:#7c8798; --amber:#e3b341; --green:#7ee787;
+  --red:#ff7b72; --blue:#58a6ff;
+  --mono:'JetBrains Mono', ui-monospace, monospace; --sans:'Inter', system-ui, sans-serif;
 }
+html[data-theme="light"]{
+  --bg:#f4f5f7; --panel:#ffffff; --panel-2:#eef0f3; --border:#dde1e6;
+  --text:#1c2430; --text-dim:#68717c; --amber:#c98a12; --green:#1a8a4a;
+  --red:#d6392f; --blue:#1668c9;
+}
+html[data-theme="light"] h1, html[data-theme="light"] .course-name,
+html[data-theme="light"] .bubble-matiere, html[data-theme="light"] .history-name,
+html[data-theme="light"] .add-panel h2, html[data-theme="light"] .brand{ color:#0f1520; }
 *{box-sizing:border-box;}
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;min-height:100vh;}
 ::selection{background:var(--amber);color:#0a0d12;}
 
-header.topbar{position:sticky;top:0;z-index:20;background:rgba(10,13,18,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
-.topbar-inner{max-width:900px;margin:0 auto;padding:16px 20px;display:flex;align-items:center;gap:10px;}
-.brand{font-family:var(--mono);font-weight:700;font-size:1.1rem;color:#fff;}
+header.topbar{position:sticky;top:0;z-index:30;background:rgba(10,13,18,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+.topbar-inner{max-width:920px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.brand{font-family:var(--mono);font-weight:700;font-size:1.1rem;color:#fff;display:flex;align-items:center;gap:8px;}
 .brand .dot{color:var(--amber);}
-.brand-sub{color:var(--text-dim);font-size:.8rem;font-family:var(--mono);margin-left:auto;}
+nav.tabs{display:flex;gap:4px;margin-left:auto;}
+nav.tabs button{font-family:var(--mono);font-size:.82rem;background:none;border:1px solid transparent;color:var(--text-dim);padding:7px 12px;border-radius:6px;cursor:pointer;transition:.15s;}
+nav.tabs button:hover{color:var(--text);border-color:var(--border);}
+nav.tabs button.active{color:var(--bg);background:var(--amber);font-weight:600;}
+.theme-toggle-btn{background:var(--panel-2);border:1px solid var(--border);color:var(--text);width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;transition:.15s;flex-shrink:0;}
+.theme-toggle-btn:hover{border-color:var(--amber);}
 
-main{max-width:900px;margin:0 auto;padding:32px 20px 80px;}
+main{max-width:920px;margin:0 auto;padding:32px 20px 80px;}
+section.page{display:none;}
+section.page.active{display:block;}
 .page-title{font-size:1.5rem;color:#fff;margin:0 0 20px;}
 
-/* shortcuts dropdown */
-.shortcuts-dropdown{margin-top:24px;}
+/* bubbles */
+.bubble-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;}
+.bubble-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:.15s;text-align:center;position:relative;}
+.bubble-card:hover{border-color:var(--amber);transform:translateY(-3px);}
+.bubble-icon{font-size:2rem;}
+.bubble-matiere{color:#fff;font-weight:700;font-size:.95rem;}
+.bubble-prof{color:var(--text-dim);font-size:.76rem;font-family:var(--mono);}
+.bubble-count{font-family:var(--mono);font-size:.7rem;color:var(--amber);background:rgba(227,179,65,.1);border-radius:20px;padding:1px 9px;margin-top:2px;}
+.bubble-del{position:absolute;top:6px;right:8px;background:none;border:none;color:var(--text-dim);font-size:.75rem;cursor:pointer;opacity:0;transition:.15s;}
+.bubble-card:hover .bubble-del{opacity:1;}
+.bubble-del:hover{color:var(--red);}
+.bubble-add-tile{background:var(--panel-2);border:1px dashed var(--border);border-radius:16px;padding:22px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;color:var(--text-dim);font-size:.82rem;transition:.15s;min-height:106px;}
+.bubble-add-tile:hover{border-color:var(--amber);color:var(--amber);}
+
+.shortcuts-dropdown{margin-bottom:28px;}
 .shortcuts-toggle{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--mono);font-size:.88rem;padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:.15s;}
 .shortcuts-toggle:hover{border-color:var(--amber);color:var(--amber);}
 .shortcuts-arrow{transition:transform .2s;color:var(--text-dim);}
 .shortcuts-dropdown.open .shortcuts-arrow{transform:rotate(180deg);}
 .shortcuts-panel{max-height:0;overflow:hidden;transition:max-height .25s ease;}
-.shortcuts-dropdown.open .shortcuts-panel{max-height:400px;}
-.shortcuts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;padding-top:12px;}
-.shortcut-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none;color:var(--text);transition:.15s;text-align:center;}
+.shortcuts-dropdown.open .shortcuts-panel{max-height:700px;}
+.shortcuts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;padding-top:12px;}
+.shortcut-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none;color:var(--text);transition:.15s;text-align:center;position:relative;}
 .shortcut-card:hover{border-color:var(--amber);transform:translateY(-2px);}
 .shortcut-icon{font-size:1.5rem;}
-.shortcut-label{font-size:.76rem;color:var(--text-dim);}
+.shortcut-label{font-size:.74rem;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;}
 .shortcut-card:hover .shortcut-label{color:var(--text);}
+.shortcut-del{position:absolute;top:2px;right:4px;background:none;border:none;color:var(--text-dim);font-size:.7rem;cursor:pointer;opacity:0;transition:.15s;}
+.shortcut-card:hover .shortcut-del{opacity:1;}
+.shortcut-del:hover{color:var(--red);}
+.shortcut-add-tile{background:var(--panel-2);border:1px dashed var(--border);border-radius:10px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;color:var(--text-dim);font-size:.78rem;transition:.15s;min-height:74px;}
+.shortcut-add-tile:hover{border-color:var(--amber);color:var(--amber);}
 
-/* form */
-.add-panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:32px;}
+.add-shortcut-form{background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-top:12px;display:none;}
+.add-shortcut-form.open{display:block;}
+.add-shortcut-form .form-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.add-shortcut-form .field{flex:1;min-width:140px;display:flex;flex-direction:column;gap:4px;}
+.add-shortcut-form label{font-family:var(--mono);font-size:.7rem;color:var(--text-dim);}
+.add-shortcut-form input{background:#0d1117;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.85rem;padding:8px 10px;font-family:var(--sans);}
+.emoji-picker{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;}
+.emoji-btn{background:#0d1117;border:1px solid var(--border);border-radius:6px;font-size:1rem;padding:4px 7px;cursor:pointer;}
+.emoji-btn:hover{border-color:var(--amber);}
+
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.toolbar input[type=text], .toolbar select{background:var(--panel);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.85rem;padding:9px 12px;font-family:var(--sans);}
+.toolbar input[type=text]{flex:2;min-width:160px;}
+.toolbar select{flex:1;min-width:130px;}
+.toolbar input:focus, .toolbar select:focus{outline:none;border-color:var(--amber);}
+.count-badge{font-family:var(--mono);font-size:.76rem;color:var(--text-dim);white-space:nowrap;width:100%;margin-top:2px;}
+
+#course-list{display:flex;flex-direction:column;gap:10px;}
+.course-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px;transition:.15s;position:relative;}
+.course-card:hover{border-color:var(--amber);}
+.course-main{flex:1;min-width:0;}
+.course-name{color:#fff;font-weight:600;font-size:.98rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.course-tags{display:flex;gap:6px;margin:4px 0;flex-wrap:wrap;}
+.tag{font-family:var(--mono);font-size:.7rem;background:var(--panel-2);border:1px solid var(--border);color:var(--text-dim);padding:1px 8px;border-radius:20px;}
+.course-url{font-family:var(--mono);color:var(--text-dim);font-size:.74rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.course-actions{display:flex;gap:8px;flex-shrink:0;align-items:center;}
+.open-btn{background:var(--amber);color:#0a0d12;border:none;font-weight:700;font-family:var(--mono);font-size:.8rem;padding:9px 16px;border-radius:7px;cursor:pointer;white-space:nowrap;text-decoration:none;flex-shrink:0;display:inline-flex;align-items:center;}
+.open-btn:hover{opacity:.9;}
+.icon-btn{background:var(--panel-2);border:1px solid var(--border);color:var(--text-dim);width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;transition:.15s;flex-shrink:0;}
+.icon-btn:hover{color:var(--text);border-color:var(--amber);}
+
+.menu-wrap{position:relative;}
+.dropdown-menu{position:absolute;top:calc(100% + 6px);right:0;background:var(--panel-2);border:1px solid var(--border);border-radius:8px;overflow:hidden;min-width:170px;z-index:10;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+.dropdown-menu button{display:flex;align-items:center;gap:8px;width:100%;background:none;border:none;color:var(--text);font-size:.85rem;padding:10px 14px;text-align:left;cursor:pointer;font-family:var(--sans);}
+.dropdown-menu button:hover{background:var(--panel);}
+.dropdown-menu button.danger{color:var(--red);}
+
+.course-card.editing .course-main{display:none;}
+.edit-fields{display:none;flex:1;flex-wrap:wrap;gap:8px;min-width:0;}
+.course-card.editing .edit-fields{display:flex;}
+.course-card.editing .course-actions .open-btn, .course-card.editing .course-actions .menu-wrap{display:none;}
+.edit-fields input{flex:1;min-width:110px;background:#0d1117;border:1px solid var(--amber);border-radius:6px;color:var(--text);font-size:.85rem;padding:7px 10px;font-family:var(--sans);}
+.edit-save-cancel{display:none;gap:6px;}
+.course-card.editing .edit-save-cancel{display:flex;}
+
+.empty-state{text-align:center;padding:50px 20px;color:var(--text-dim);}
+.empty-state .big{font-size:2rem;margin-bottom:10px;}
+
+.add-panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:36px;}
 .add-panel h2{margin:0 0 4px;font-size:1.1rem;color:#fff;}
 .add-panel .hint{color:var(--text-dim);font-size:.83rem;margin:0 0 16px;}
 .form-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
-.form-row .field{flex:1;min-width:200px;display:flex;flex-direction:column;gap:5px;}
+.form-row .field{flex:1;min-width:180px;display:flex;flex-direction:column;gap:5px;}
 .form-row label{font-family:var(--mono);font-size:.72rem;color:var(--text-dim);letter-spacing:.02em;}
 .form-row input{background:#0d1117;border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--sans);font-size:.92rem;padding:10px 12px;}
 .form-row input:focus{outline:none;border-color:var(--amber);}
@@ -64,38 +139,25 @@ button.btn{font-family:var(--mono);background:var(--panel-2);border:1px solid va
 button.btn:hover{border-color:var(--amber);color:var(--amber);}
 button.btn.primary{background:var(--amber);color:#0a0d12;border:none;font-weight:700;}
 button.btn.primary:hover{opacity:.9;color:#0a0d12;}
-button.btn.danger:hover{border-color:var(--red);color:var(--red);}
 
-/* search + count */
-.toolbar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
-.toolbar input[type=text]{flex:1;min-width:180px;background:var(--panel);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.88rem;padding:9px 14px;}
-.toolbar input[type=text]:focus{outline:none;border-color:var(--amber);}
-.count-badge{font-family:var(--mono);font-size:.78rem;color:var(--text-dim);white-space:nowrap;}
+.history-item{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;}
+.history-date{font-family:var(--mono);font-size:.74rem;color:var(--amber);white-space:nowrap;min-width:90px;}
+.history-info{flex:1;min-width:0;}
+.history-name{color:#fff;font-weight:600;font-size:.92rem;}
+.history-tags{display:flex;gap:6px;margin-top:3px;flex-wrap:wrap;}
 
-/* course list */
-#course-list{display:flex;flex-direction:column;gap:10px;}
-.course-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px;transition:.15s;}
-.course-card:hover{border-color:var(--amber);}
-.course-info{flex:1;min-width:0;}
-.course-name{color:#fff;font-weight:600;font-size:.98rem;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.course-url{font-family:var(--mono);color:var(--text-dim);font-size:.76rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.course-actions{display:flex;gap:8px;flex-shrink:0;}
-.icon-btn{background:var(--panel-2);border:1px solid var(--border);color:var(--text-dim);width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.95rem;transition:.15s;flex-shrink:0;}
-.icon-btn:hover{color:var(--red);border-color:var(--red);}
-.open-btn{background:var(--amber);color:#0a0d12;border:none;font-weight:700;font-family:var(--mono);font-size:.8rem;padding:9px 16px;border-radius:7px;cursor:pointer;white-space:nowrap;text-decoration:none;flex-shrink:0;display:inline-flex;align-items:center;}
-.open-btn:hover{opacity:.9;}
-
-/* empty state */
-.empty-state{text-align:center;padding:50px 20px;color:var(--text-dim);}
-.empty-state .big{font-size:2rem;margin-bottom:10px;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;}
+.modal-overlay[hidden]{display:none;}
+.modal-box{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:24px;max-width:420px;width:100%;}
+.modal-box h3{margin:0 0 10px;color:#fff;font-size:1.1rem;}
+.modal-box p{color:var(--text-dim);font-size:.88rem;margin:0 0 12px;}
+.modal-box input{width:100%;background:#0d1117;border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:.9rem;padding:10px 12px;font-family:var(--mono);margin-bottom:16px;}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;}
+button.btn.danger-btn{background:var(--red);border:none;color:#1a0d0d;font-weight:700;}
+button.btn.danger-btn:disabled{opacity:.4;cursor:not-allowed;}
+button.btn.danger-btn:not(:disabled):hover{opacity:.9;color:#1a0d0d;}
 
 footer{text-align:center;color:var(--text-dim);font-size:.78rem;padding:30px 20px;font-family:var(--mono);}
-
-/* edit mode inline inputs */
-.course-card.editing .course-info{display:none;}
-.edit-fields{display:none;flex:1;gap:10px;min-width:0;}
-.course-card.editing .edit-fields{display:flex;}
-.edit-fields input{flex:1;min-width:0;background:#0d1117;border:1px solid var(--amber);border-radius:6px;color:var(--text);font-size:.88rem;padding:7px 10px;font-family:var(--sans);}
 
 @media(max-width:560px){
   .course-card{flex-wrap:wrap;}
@@ -107,16 +169,65 @@ footer{text-align:center;color:var(--text-dim);font-size:.78rem;padding:30px 20p
 
 <header class="topbar">
   <div class="topbar-inner">
-    <div class="brand">📚 <span class="dot">Mes Cours</span></div>
-    <div class="brand-sub" id="count-header"></div>
+    <div class="brand">
+      <!-- Ton logo : mets ton fichier (ex: logo.png) dans le même dossier que ce fichier html,
+           remplace "logo.png" par son nom ci-dessous, puis supprime l'emoji 📚 juste après. -->
+      <img src="logo.png" alt="Logo" style="height:26px;width:auto;border-radius:6px;" onerror="this.style.display='none'">
+      📚 <span class="dot">Mes Cours</span>
+    </div>
+    <nav class="tabs">
+      <button data-page="parcours" class="active">Parcours</button>
+      <button data-page="cours">Cours</button>
+      <button data-page="historique">Historique</button>
+    </nav>
+    <button class="theme-toggle-btn" id="theme-toggle" title="Changer de thème">🌙</button>
   </div>
 </header>
 
 <main>
+
+<section class="page active" id="page-parcours">
+  <h1 class="page-title">Parcours</h1>
+  <p style="color:var(--text-dim);font-size:.85rem;margin-top:-14px;">Tes matières (et professeurs), en bulles — clique sur une bulle pour voir les cours correspondants.</p>
+
+  <div class="bubble-grid" id="bubble-grid"></div>
+
+  <div class="add-shortcut-form" id="add-bubble-form" style="margin-top:16px;">
+    <div class="form-row">
+      <div class="field">
+        <label>ICÔNE / EMOJI</label>
+        <input type="text" id="bub-icon" placeholder="Ex : 🧮" maxlength="4">
+      </div>
+      <div class="field">
+        <label>MATIÈRE</label>
+        <input type="text" id="bub-matiere" placeholder="Ex : Maths">
+      </div>
+      <div class="field">
+        <label>PROFESSEUR (optionnel)</label>
+        <input type="text" id="bub-prof" placeholder="Ex : M. Dupont">
+      </div>
+    </div>
+    <div class="emoji-picker" id="bubble-emoji-picker"></div>
+    <div class="form-actions" style="margin-top:10px;">
+      <button class="btn" id="bub-cancel">Annuler</button>
+      <button class="btn primary" id="bub-save">Créer la bulle</button>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="page-cours">
   <h1 class="page-title">Mes cours</h1>
 
   <div class="toolbar">
-    <input type="text" id="search" placeholder="🔎 Rechercher un cours...">
+    <input type="text" id="search" placeholder="🔎 Rechercher (nom, matière, prof...)">
+    <select id="filter-matiere"><option value="">Toutes les matières</option></select>
+    <select id="filter-prof"><option value="">Tous les professeurs</option></select>
+    <select id="sort-select">
+      <option value="recent">Trier : plus récents</option>
+      <option value="alpha">Trier : alphabétique</option>
+      <option value="matiere">Trier : par matière</option>
+      <option value="prof">Trier : par professeur</option>
+    </select>
     <span class="count-badge" id="count-badge"></span>
   </div>
 
@@ -126,207 +237,723 @@ footer{text-align:center;color:var(--text-dim);font-size:.78rem;padding:30px 20p
     <div>Aucun cours pour l'instant. Ajoute ton premier cours ci-dessous.</div>
   </div>
 
-  <div class="shortcuts-dropdown">
+  <div class="shortcuts-dropdown" id="shortcuts-dropdown">
     <button class="shortcuts-toggle" id="shortcuts-toggle">
       <span>🔗 Raccourcis</span>
       <span class="shortcuts-arrow" id="shortcuts-arrow">▾</span>
     </button>
     <div class="shortcuts-panel" id="shortcuts-panel">
-      <div class="shortcuts-grid">
-        <a class="shortcut-card" href="https://mail.google.com" target="_blank" rel="noopener">
-          <span class="shortcut-icon">📧</span><span class="shortcut-label">Gmail</span>
-        </a>
-        <a class="shortcut-card" href="https://drive.google.com" target="_blank" rel="noopener">
-          <span class="shortcut-icon">🗂️</span><span class="shortcut-label">Drive</span>
-        </a>
-        <a class="shortcut-card" href="https://myaccount.google.com" target="_blank" rel="noopener">
-          <span class="shortcut-icon">👤</span><span class="shortcut-label">Mon compte</span>
-        </a>
-        <a class="shortcut-card" href="https://calendar.google.com" target="_blank" rel="noopener">
-          <span class="shortcut-icon">📅</span><span class="shortcut-label">Agenda</span>
-        </a>
-        <a class="shortcut-card" href="https://classroom.google.com" target="_blank" rel="noopener">
-          <span class="shortcut-icon">🎓</span><span class="shortcut-label">Classroom</span>
-        </a>
-        <a class="shortcut-card" href="https://docs.google.com" target="_blank" rel="noopener">
-          <span class="shortcut-icon">📄</span><span class="shortcut-label">Docs</span>
-        </a>
-        <a class="shortcut-card" href="https://translate.google.com" target="_blank" rel="noopener">
-          <span class="shortcut-icon">🌐</span><span class="shortcut-label">Traduction</span>
-        </a>
-        <a class="shortcut-card" href="https://claude.ai" target="_blank" rel="noopener">
-          <span class="shortcut-icon">✨</span><span class="shortcut-label">Claude</span>
-        </a>
+      <div class="shortcuts-grid" id="shortcuts-grid"></div>
+      <div class="add-shortcut-form" id="add-shortcut-form">
+        <div class="form-row">
+          <div class="field">
+            <label>NOM</label>
+            <input type="text" id="sc-name" placeholder="Ex : Notion">
+          </div>
+          <div class="field">
+            <label>ICÔNE / EMOJI</label>
+            <input type="text" id="sc-icon" placeholder="Ex : 📝" maxlength="4">
+          </div>
+          <div class="field">
+            <label>LIEN</label>
+            <input type="text" id="sc-url" placeholder="https://...">
+          </div>
+        </div>
+        <div class="emoji-picker" id="emoji-picker"></div>
+        <div class="form-actions" style="margin-top:10px;">
+          <button class="btn" id="sc-cancel">Annuler</button>
+          <button class="btn primary" id="sc-save">Ajouter le raccourci</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="add-panel">
-    <h2>+ Ajouter un cours</h2>
-    <p class="hint">Renseigne le nom du cours et son lien — il apparaîtra en haut de ta liste, enregistré sur cet appareil.</p>
-    <div class="form-row">
-      <div class="field">
-        <label>NOM DU COURS</label>
-        <input type="text" id="input-name" placeholder="Ex : Les expressions régulières">
+  <div class="shortcuts-dropdown" id="add-course-dropdown">
+    <button class="shortcuts-toggle" id="add-course-toggle">
+      <span>+ Ajouter un cours</span>
+      <span class="shortcuts-arrow" id="add-course-arrow">▾</span>
+    </button>
+    <div class="shortcuts-panel" id="add-course-panel-wrap">
+      <div class="add-panel" style="margin-top:12px;">
+        <p class="hint">Nom, lien, et si tu veux, matière et professeur pour pouvoir trier/filtrer plus tard.</p>
+        <div class="form-row">
+          <div class="field" style="flex:2;">
+            <label>MODÈLE DE LIEN (optionnel)</label>
+            <select id="pattern-select"><option value="">Lien complet (pas de modèle)</option></select>
+          </div>
+          <div class="field" style="flex:0 0 auto;">
+            <label>&nbsp;</label>
+            <button type="button" class="btn" id="manage-patterns-btn" style="white-space:nowrap;">⚙ Gérer les modèles</button>
+          </div>
+        </div>
+        <div class="add-shortcut-form" id="patterns-panel">
+          <div id="patterns-list"></div>
+          <div class="form-row">
+            <div class="field">
+              <label>NOM DU MODÈLE</label>
+              <input type="text" id="pat-name" placeholder="Ex : GitHub Pages - cours BTS">
+            </div>
+            <div class="field">
+              <label>DÉBUT DU LIEN (préfixe)</label>
+              <input type="text" id="pat-prefix" placeholder="https://tonpseudo.github.io/repo/">
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn" id="pat-cancel">Fermer</button>
+            <button class="btn primary" id="pat-save">Ajouter le modèle</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>NOM DU COURS</label>
+            <input type="text" id="input-name" placeholder="Ex : Les expressions régulières">
+          </div>
+        </div>
+        <div class="form-row" id="url-full-row">
+          <div class="field">
+            <label>LIEN DU COURS</label>
+            <input type="text" id="input-url" placeholder="https://... ou un chemin de fichier">
+          </div>
+        </div>
+        <div class="form-row" id="pattern-url-row" style="display:none;">
+          <div class="field">
+            <label>LIEN COMPLET (généré à partir du modèle)</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="mono" id="pattern-prefix-label" style="color:var(--text-dim);font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:45%;"></span>
+              <input type="text" id="input-suffix" placeholder="nom-du-fichier.html">
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>MATIÈRE (optionnel)</label>
+            <input type="text" id="input-matiere" placeholder="Ex : NSI">
+          </div>
+          <div class="field">
+            <label>PROFESSEUR (optionnel)</label>
+            <input type="text" id="input-prof" placeholder="Ex : M. Dupont">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn primary" id="btn-add">+ Ajouter le cours</button>
+        </div>
       </div>
-      <div class="field">
-        <label>LIEN DU COURS</label>
-        <input type="text" id="input-url" placeholder="Ex : https://... ou un chemin de fichier">
-      </div>
-    </div>
-    <div class="form-actions">
-      <button class="btn primary" id="btn-add">+ Ajouter le cours</button>
     </div>
   </div>
+</section>
+
+<section class="page" id="page-historique">
+  <h1 class="page-title">Historique des cours</h1>
+  <p style="color:var(--text-dim);font-size:.85rem;margin-top:-14px;">Tous les cours ajoutés, du plus récent au plus ancien.</p>
+  <div id="history-list"></div>
+</section>
+
 </main>
 
-<footer>Tes cours sont enregistrés uniquement dans ce navigateur (localStorage) — aucun serveur, aucun compte.</footer>
+<footer>Tes cours sont enregistrés sur cet appareil (localStorage), plus les cours ajoutés directement dans le code du site — aucun serveur, aucun compte.</footer>
+
+<div class="modal-overlay" id="delete-modal" hidden>
+  <div class="modal-box">
+    <h3>Supprimer ce cours ?</h3>
+    <p>Cette action est irréversible. Pour confirmer, retape le nom exact du cours : <strong id="delete-modal-name" style="color:#fff;"></strong></p>
+    <input type="text" id="delete-confirm-input" autocomplete="off" placeholder="Retape le nom du cours">
+    <div class="modal-actions">
+      <button class="btn" id="delete-cancel">Annuler</button>
+      <button class="btn danger-btn" id="delete-confirm-btn" disabled>Supprimer définitivement</button>
+    </div>
+  </div>
+</div>
 
 <script>
-const STORAGE_KEY = 'mes-cours-liste';
+/* ================================================================
+   COURS AJOUTÉS DIRECTEMENT DANS LE CODE
+   Ajoute une ligne ici pour qu'un cours apparaisse automatiquement
+   sur TOUS tes appareils dès que tu ouvres ce fichier — pas besoin
+   de le rentrer à la main dans chaque navigateur.
+   matiere et professeur sont optionnels (laisse "" si inutile).
+================================================================ */
+const BUILTIN_COURSES = [
+  // { name: "Les expressions régulières", url: "cours-regex.html", matiere: "NSI", professeur: "" },
+  // { name: "Le langage C++", url: "cours-cpp.html", matiere: "NSI", professeur: "" },
+  // { name: "Système de fichiers Linux", url: "cours-linux-fichiers.html", matiere: "SI", professeur: "" },
+  // { name: "Gérer les fichiers sous Linux", url: "cours-linux-gestion-fichiers.html", matiere: "SI", professeur: "" },
+];
 
-function loadCourses(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  }catch(e){
-    return [];
-  }
+/* ================================================================
+   BULLES DE PARCOURS (matière + professeur en option)
+   Ajoute une ligne ici pour qu'une bulle apparaisse automatiquement
+   sur TOUS tes appareils — même principe que BUILTIN_COURSES.
+   professeur est optionnel (laisse "" si tu ne veux pas préciser).
+   Utile si une même matière a plusieurs profs : crée une bulle par prof.
+================================================================ */
+const BUILTIN_BUBBLES = [
+  // { icon: "🧮", matiere: "Maths", professeur: "" },
+  // { icon: "💻", matiere: "NSI", professeur: "" },
+  // { icon: "🔌", matiere: "SI", professeur: "" },
+  // { icon: "🧮", matiere: "Maths", professeur: "Mme Martin" },
+];
+/* ================================================================ */
+
+/* Raccourcis ajoutés directement dans le code (même principe) */
+const BUILTIN_SHORTCUTS = [
+  { name: "Gmail", icon: "📧", url: "https://mail.google.com" },
+  { name: "Drive", icon: "🗂️", url: "https://drive.google.com" },
+  { name: "Mon compte", icon: "👤", url: "https://myaccount.google.com" },
+  { name: "Agenda", icon: "📅", url: "https://calendar.google.com" },
+  { name: "Classroom", icon: "🎓", url: "https://classroom.google.com" },
+  { name: "Docs", icon: "📄", url: "https://docs.google.com" },
+  { name: "Traduction", icon: "🌐", url: "https://translate.google.com" },
+  { name: "Claude", icon: "✨", url: "https://claude.ai" },
+];
+/* ================================================================ */
+
+const LS_COURSES = 'mes-cours-liste-v2';
+const LS_HIDDEN_COURSES = 'mes-cours-hidden-builtins';
+const LS_SHORTCUTS = 'mes-cours-shortcuts-v2';
+const LS_HIDDEN_SHORTCUTS = 'mes-cours-hidden-shortcuts';
+const LS_BUBBLES = 'mes-cours-bubbles';
+const LS_HIDDEN_BUBBLES = 'mes-cours-hidden-bubbles';
+
+function slugId(prefix, str){
+  let h = 0;
+  for(let i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i)) | 0; }
+  return prefix + Math.abs(h).toString(36);
 }
-function saveCourses(courses){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(courses));
+function loadJSON(key, fallback){
+  try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }catch(e){ return fallback; }
+}
+function saveJSON(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+function escapeHtml(s){
+  return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function normalizeUrl(url){
-  url = url.trim();
+  url = (url||'').trim();
   if(!url) return url;
-  if(!/^https?:\/\//i.test(url) && !/^file:\/\//i.test(url) && url.includes('.') === false){
-    return url; // laisse tel quel si ce n'est visiblement pas une URL classique
-  }
-  if(!/^[a-z]+:\/\//i.test(url)){
-    return 'https://' + url;
-  }
+  if(/^[a-z][a-z0-9+.-]*:\/\//i.test(url)) return url;
+  if(/^[\w.\-/]+\.(html?|php|pdf)$/i.test(url)) return url;
+  if(url.includes('.') && !url.includes(' ')) return 'https://' + url;
   return url;
 }
-function escapeHtml(s){
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+let userCourses = loadJSON(LS_COURSES, []);
+let hiddenBuiltinCourses = loadJSON(LS_HIDDEN_COURSES, []);
+
+function getAllCourses(){
+  const builtinAsCourses = BUILTIN_COURSES.map(c=>({
+    id: slugId('builtin-', c.name + '|' + c.url),
+    name: c.name, url: c.url, matiere: c.matiere||'', professeur: c.professeur||'',
+    addedAt: null, isBuiltin: true
+  })).filter(c => !hiddenBuiltinCourses.includes(c.id) && !userCourses.some(u => u.id === c.id));
+  return [...builtinAsCourses, ...userCourses];
+}
+function deleteCourse(id){
+  const course = getAllCourses().find(c => c.id === id);
+  if(!course) return;
+  if(course.isBuiltin){
+    hiddenBuiltinCourses.push(id);
+    saveJSON(LS_HIDDEN_COURSES, hiddenBuiltinCourses);
+  }else{
+    userCourses = userCourses.filter(c => c.id !== id);
+    saveJSON(LS_COURSES, userCourses);
+  }
+}
+function upsertCourse(course){
+  if(course.isBuiltin){
+    hiddenBuiltinCourses.push(course.id);
+    saveJSON(LS_HIDDEN_COURSES, hiddenBuiltinCourses);
+    course = {...course, isBuiltin:false, addedAt: course.addedAt || new Date().toISOString()};
+  }
+  const idx = userCourses.findIndex(c => c.id === course.id);
+  if(idx >= 0) userCourses[idx] = course; else userCourses.push(course);
+  saveJSON(LS_COURSES, userCourses);
 }
 
-let courses = loadCourses();
-let editingId = null;
+let userShortcuts = loadJSON(LS_SHORTCUTS, []);
+let hiddenBuiltinShortcuts = loadJSON(LS_HIDDEN_SHORTCUTS, []);
 
-function render(){
+const LS_PATTERNS = 'mes-cours-patterns';
+let patterns = loadJSON(LS_PATTERNS, []);
+function savePatterns(){ saveJSON(LS_PATTERNS, patterns); }
+
+function renderPatternSelect(){
+  const sel = document.getElementById('pattern-select');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Lien complet (pas de modèle)</option>' +
+    patterns.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+  sel.value = patterns.some(p=>p.id===cur) ? cur : '';
+}
+function renderPatternsList(){
+  const el = document.getElementById('patterns-list');
+  if(patterns.length===0){
+    el.innerHTML = "<p style=\"color:var(--text-dim);font-size:.82rem;\">Aucun modèle enregistré pour l'instant.</p>";
+    return;
+  }
+  el.innerHTML = patterns.map(p=>`
+    <div style="display:flex;align-items:center;gap:8px;background:#0d1117;border:1px solid var(--border);border-radius:6px;padding:8px 10px;margin-bottom:6px;">
+      <div style="flex:1;min-width:0;">
+        <div style="color:#fff;font-size:.85rem;">${escapeHtml(p.name)}</div>
+        <div class="mono" style="color:var(--text-dim);font-size:.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(p.prefix)}</div>
+      </div>
+      <button class="icon-btn pat-del" data-id="${p.id}" title="Supprimer">🗑</button>
+    </div>`).join('');
+  el.querySelectorAll('.pat-del').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      patterns = patterns.filter(p=>p.id!==btn.dataset.id);
+      savePatterns(); renderPatternsList(); renderPatternSelect();
+    });
+  });
+}
+document.getElementById('manage-patterns-btn').addEventListener('click', ()=>{
+  document.getElementById('patterns-panel').classList.toggle('open');
+});
+document.getElementById('pat-cancel').addEventListener('click', ()=>{
+  document.getElementById('patterns-panel').classList.remove('open');
+});
+document.getElementById('pat-save').addEventListener('click', ()=>{
+  const name = document.getElementById('pat-name').value.trim();
+  const prefix = document.getElementById('pat-prefix').value.trim();
+  if(!name || !prefix){ alert('Merci de renseigner un nom et un préfixe.'); return; }
+  patterns.push({id:'pat-'+Date.now().toString(36)+Math.random().toString(36).slice(2), name, prefix});
+  savePatterns();
+  document.getElementById('pat-name').value = '';
+  document.getElementById('pat-prefix').value = '';
+  renderPatternsList();
+  renderPatternSelect();
+});
+document.getElementById('pattern-select').addEventListener('change', ()=>{
+  const id = document.getElementById('pattern-select').value;
+  const fullRow = document.getElementById('url-full-row');
+  const patRow = document.getElementById('pattern-url-row');
+  if(id){
+    const pat = patterns.find(p=>p.id===id);
+    document.getElementById('pattern-prefix-label').textContent = pat.prefix;
+    fullRow.style.display = 'none';
+    patRow.style.display = 'flex';
+  }else{
+    fullRow.style.display = 'flex';
+    patRow.style.display = 'none';
+  }
+});
+renderPatternSelect();
+renderPatternsList();
+
+function getAllShortcuts(){
+  const builtinAsShortcuts = BUILTIN_SHORTCUTS.map(s=>({
+    id: slugId('bsc-', s.name + '|' + s.url),
+    name: s.name, icon: s.icon, url: s.url, isBuiltin:true
+  })).filter(s => !hiddenBuiltinShortcuts.includes(s.id));
+  return [...builtinAsShortcuts, ...userShortcuts];
+}
+function deleteShortcut(id){
+  const sc = getAllShortcuts().find(s=>s.id===id);
+  if(!sc) return;
+  if(sc.isBuiltin){
+    hiddenBuiltinShortcuts.push(id);
+    saveJSON(LS_HIDDEN_SHORTCUTS, hiddenBuiltinShortcuts);
+  }else{
+    userShortcuts = userShortcuts.filter(s=>s.id!==id);
+    saveJSON(LS_SHORTCUTS, userShortcuts);
+  }
+}
+function addShortcut(sc){
+  userShortcuts.push({...sc, id: 'user-' + Date.now().toString(36)});
+  saveJSON(LS_SHORTCUTS, userShortcuts);
+}
+
+/* ================= BULLES DE PARCOURS ================= */
+let userBubbles = loadJSON(LS_BUBBLES, []);
+let hiddenBuiltinBubbles = loadJSON(LS_HIDDEN_BUBBLES, []);
+
+function getAllBubbles(){
+  const builtinAsBubbles = BUILTIN_BUBBLES.map(b=>({
+    id: slugId('bbub-', b.matiere + '|' + (b.professeur||'')),
+    icon: b.icon||'📘', matiere: b.matiere, professeur: b.professeur||'', isBuiltin:true
+  })).filter(b => !hiddenBuiltinBubbles.includes(b.id));
+  return [...builtinAsBubbles, ...userBubbles];
+}
+function deleteBubble(id){
+  const b = getAllBubbles().find(x=>x.id===id);
+  if(!b) return;
+  if(b.isBuiltin){
+    hiddenBuiltinBubbles.push(id);
+    saveJSON(LS_HIDDEN_BUBBLES, hiddenBuiltinBubbles);
+  }else{
+    userBubbles = userBubbles.filter(x=>x.id!==id);
+    saveJSON(LS_BUBBLES, userBubbles);
+  }
+}
+function addBubble(b){
+  userBubbles.push({...b, id: 'user-' + Date.now().toString(36)});
+  saveJSON(LS_BUBBLES, userBubbles);
+}
+function countCoursesForBubble(b){
+  return getAllCourses().filter(c => c.matiere === b.matiere && (!b.professeur || c.professeur === b.professeur)).length;
+}
+function renderBubbles(){
+  const grid = document.getElementById('bubble-grid');
+  const list = getAllBubbles();
+  grid.innerHTML = list.map(b => `
+    <div class="bubble-card" data-id="${b.id}" data-matiere="${escapeHtml(b.matiere)}" data-prof="${escapeHtml(b.professeur)}">
+      <button class="bubble-del" data-id="${b.id}" title="Supprimer">✕</button>
+      <span class="bubble-icon">${b.icon || '📘'}</span>
+      <span class="bubble-matiere">${escapeHtml(b.matiere)}</span>
+      ${b.professeur ? `<span class="bubble-prof">👤 ${escapeHtml(b.professeur)}</span>` : ''}
+      <span class="bubble-count">${countCoursesForBubble(b)} cours</span>
+    </div>
+  `).join('') + `<div class="bubble-add-tile" id="bubble-add-tile"><span style="font-size:1.5rem;">+</span><span>Créer une bulle</span></div>`;
+
+  grid.querySelectorAll('.bubble-del').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      deleteBubble(btn.dataset.id);
+      renderBubbles();
+    });
+  });
+  grid.querySelectorAll('.bubble-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      document.getElementById('filter-matiere').value = card.dataset.matiere;
+      document.getElementById('filter-prof').value = card.dataset.prof;
+      document.querySelector('nav.tabs button[data-page="cours"]').click();
+      renderCourses();
+    });
+  });
+  document.getElementById('bubble-add-tile').addEventListener('click', ()=>{
+    document.getElementById('add-bubble-form').classList.add('open');
+  });
+}
+const BUBBLE_EMOJI_CHOICES = ['🧮','💻','🔌','🧪','🌍','📖','🎨','🏃','🎧','🗣️','📐','⚗️','🏛️','💾','🧠','📊'];
+const bubbleEmojiPickerEl = document.getElementById('bubble-emoji-picker');
+bubbleEmojiPickerEl.innerHTML = BUBBLE_EMOJI_CHOICES.map(e=>`<button type="button" class="emoji-btn">${e}</button>`).join('');
+bubbleEmojiPickerEl.querySelectorAll('.emoji-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{ document.getElementById('bub-icon').value = btn.textContent; });
+});
+document.getElementById('bub-cancel').addEventListener('click', ()=>{
+  document.getElementById('add-bubble-form').classList.remove('open');
+  document.getElementById('bub-icon').value = '';
+  document.getElementById('bub-matiere').value = '';
+  document.getElementById('bub-prof').value = '';
+});
+document.getElementById('bub-save').addEventListener('click', ()=>{
+  const icon = document.getElementById('bub-icon').value.trim();
+  const matiere = document.getElementById('bub-matiere').value.trim();
+  const professeur = document.getElementById('bub-prof').value.trim();
+  if(!matiere){ alert('Merci de renseigner au moins une matière.'); return; }
+  addBubble({icon, matiere, professeur});
+  document.getElementById('bub-cancel').click();
+  renderBubbles();
+});
+
+const tabs = document.querySelectorAll('nav.tabs button');
+const pages = document.querySelectorAll('section.page');
+tabs.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    tabs.forEach(b=>b.classList.remove('active'));
+    pages.forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('page-'+btn.dataset.page).classList.add('active');
+    if(btn.dataset.page === 'historique') renderHistory();
+    if(btn.dataset.page === 'parcours') renderBubbles();
+  });
+});
+
+const EMOJI_CHOICES = ['📝','📚','💻','🧮','🔬','🎨','🎧','🗓️','📌','🌍','⚙️','📈','🧠','🏫','✏️','📊','🔧','🎬','🧪','📁'];
+
+function renderShortcuts(){
+  const grid = document.getElementById('shortcuts-grid');
+  const list = getAllShortcuts();
+  grid.innerHTML = list.map(s => `
+    <a class="shortcut-card" href="${escapeHtml(s.url)}" target="_blank" rel="noopener" data-id="${s.id}">
+      <button class="shortcut-del" data-id="${s.id}" title="Supprimer">✕</button>
+      <span class="shortcut-icon">${s.icon || '🔗'}</span>
+      <span class="shortcut-label">${escapeHtml(s.name)}</span>
+    </a>
+  `).join('') + `<div class="shortcut-add-tile" id="shortcut-add-tile"><span style="font-size:1.3rem;">+</span><span>Ajouter</span></div>`;
+
+  grid.querySelectorAll('.shortcut-del').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.preventDefault(); e.stopPropagation();
+      deleteShortcut(btn.dataset.id);
+      renderShortcuts();
+    });
+  });
+  document.getElementById('shortcut-add-tile').addEventListener('click', ()=>{
+    document.getElementById('add-shortcut-form').classList.add('open');
+  });
+}
+const emojiPickerEl = document.getElementById('emoji-picker');
+emojiPickerEl.innerHTML = EMOJI_CHOICES.map(e=>`<button type="button" class="emoji-btn">${e}</button>`).join('');
+emojiPickerEl.querySelectorAll('.emoji-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{ document.getElementById('sc-icon').value = btn.textContent; });
+});
+document.getElementById('sc-cancel').addEventListener('click', ()=>{
+  document.getElementById('add-shortcut-form').classList.remove('open');
+  document.getElementById('sc-name').value = '';
+  document.getElementById('sc-icon').value = '';
+  document.getElementById('sc-url').value = '';
+});
+document.getElementById('sc-save').addEventListener('click', ()=>{
+  const name = document.getElementById('sc-name').value.trim();
+  const icon = document.getElementById('sc-icon').value.trim();
+  const url = normalizeUrl(document.getElementById('sc-url').value.trim());
+  if(!name || !url){ alert('Merci de renseigner au moins un nom et un lien.'); return; }
+  addShortcut({name, icon, url});
+  document.getElementById('sc-cancel').click();
+  renderShortcuts();
+});
+document.getElementById('shortcuts-toggle').addEventListener('click', ()=>{
+  document.getElementById('shortcuts-dropdown').classList.toggle('open');
+});
+document.getElementById('add-course-toggle').addEventListener('click', ()=>{
+  document.getElementById('add-course-dropdown').classList.toggle('open');
+});
+renderShortcuts();
+
+let editingId = null;
+let openMenuId = null;
+
+function uniqueValues(list, field){
+  return [...new Set(list.map(c=>c[field]).filter(Boolean))].sort();
+}
+function populateFilters(){
+  const all = getAllCourses();
+  const matSelect = document.getElementById('filter-matiere');
+  const profSelect = document.getElementById('filter-prof');
+  const curMat = matSelect.value, curProf = profSelect.value;
+  matSelect.innerHTML = '<option value="">Toutes les matières</option>' +
+    uniqueValues(all,'matiere').map(m=>`<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join('');
+  profSelect.innerHTML = '<option value="">Tous les professeurs</option>' +
+    uniqueValues(all,'professeur').map(p=>`<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`).join('');
+  matSelect.value = curMat; profSelect.value = curProf;
+}
+
+function renderCourses(){
   const listEl = document.getElementById('course-list');
   const emptyEl = document.getElementById('empty-state');
   const query = document.getElementById('search').value.trim().toLowerCase();
-  const filtered = courses.filter(c => c.name.toLowerCase().includes(query));
+  const matFilter = document.getElementById('filter-matiere').value;
+  const profFilter = document.getElementById('filter-prof').value;
+  const sortMode = document.getElementById('sort-select').value;
 
-  document.getElementById('count-header').textContent = courses.length + (courses.length > 1 ? ' cours' : ' cours');
-  document.getElementById('count-badge').textContent = query ? `${filtered.length} résultat(s)` : `${courses.length} cours au total`;
+  let all = getAllCourses();
+  document.getElementById('count-badge').textContent = `${all.length} cours au total`;
 
-  if(courses.length === 0){
-    listEl.innerHTML = '';
-    emptyEl.style.display = 'block';
-    return;
+  let filtered = all.filter(c=>{
+    const matchQuery = !query || (c.name+' '+c.matiere+' '+c.professeur).toLowerCase().includes(query);
+    const matchMat = !matFilter || c.matiere === matFilter;
+    const matchProf = !profFilter || c.professeur === profFilter;
+    return matchQuery && matchMat && matchProf;
+  });
+
+  if(sortMode === 'alpha') filtered.sort((a,b)=>a.name.localeCompare(b.name));
+  else if(sortMode === 'matiere') filtered.sort((a,b)=>(a.matiere||'zzz').localeCompare(b.matiere||'zzz'));
+  else if(sortMode === 'prof') filtered.sort((a,b)=>(a.professeur||'zzz').localeCompare(b.professeur||'zzz'));
+  else filtered = filtered.slice().reverse();
+
+  if(all.length === 0){
+    listEl.innerHTML = ''; emptyEl.style.display = 'block'; return;
   }
   emptyEl.style.display = 'none';
-
   if(filtered.length === 0){
-    listEl.innerHTML = '<div class="empty-state">Aucun cours ne correspond à ta recherche.</div>';
+    listEl.innerHTML = '<div class="empty-state">Aucun cours ne correspond à ta recherche/filtre.</div>';
     return;
   }
 
-  listEl.innerHTML = filtered.map(c => {
+  listEl.innerHTML = filtered.map(c=>{
     const isEditing = c.id === editingId;
+    const tags = [c.matiere ? `<span class="tag">📘 ${escapeHtml(c.matiere)}</span>` : '', c.professeur ? `<span class="tag">👤 ${escapeHtml(c.professeur)}</span>` : ''].join('');
     return `
-    <div class="course-card${isEditing ? ' editing' : ''}" data-id="${c.id}">
-      <div class="course-info">
+    <div class="course-card${isEditing?' editing':''}" data-id="${c.id}">
+      <div class="course-main">
         <div class="course-name">${escapeHtml(c.name)}</div>
+        ${tags ? `<div class="course-tags">${tags}</div>` : ''}
         <div class="course-url">${escapeHtml(c.url)}</div>
       </div>
       <div class="edit-fields">
-        <input type="text" class="edit-name" value="${escapeHtml(c.name)}">
-        <input type="text" class="edit-url" value="${escapeHtml(c.url)}">
+        <input type="text" class="edit-name" placeholder="Nom" value="${escapeHtml(c.name)}">
+        <input type="text" class="edit-url" placeholder="Lien" value="${escapeHtml(c.url)}">
+        <input type="text" class="edit-matiere" placeholder="Matière" value="${escapeHtml(c.matiere)}">
+        <input type="text" class="edit-prof" placeholder="Professeur" value="${escapeHtml(c.professeur)}">
       </div>
       <div class="course-actions">
-        ${isEditing
-          ? `<button class="icon-btn save-btn" title="Enregistrer">✓</button>
-             <button class="icon-btn cancel-btn" title="Annuler">✕</button>`
-          : `<a class="open-btn" href="${escapeHtml(c.url)}" target="_blank" rel="noopener">Ouvrir →</a>
-             <button class="icon-btn edit-btn" title="Modifier">✎</button>
-             <button class="icon-btn delete-btn" title="Supprimer">🗑</button>`
-        }
+        <a class="open-btn" href="${escapeHtml(c.url)}" target="_blank" rel="noopener">Ouvrir →</a>
+        <div class="edit-save-cancel">
+          <button class="icon-btn save-btn" title="Enregistrer">✓</button>
+          <button class="icon-btn cancel-btn" title="Annuler">✕</button>
+        </div>
+        <div class="menu-wrap">
+          <button class="icon-btn menu-btn" title="Options">⋯</button>
+          ${openMenuId===c.id ? `
+          <div class="dropdown-menu">
+            <button data-action="edit">✎ Modifier</button>
+            <button data-action="copy">🔗 Copier le lien</button>
+            <button data-action="delete" class="danger">🗑 Supprimer</button>
+          </div>` : ''}
+        </div>
       </div>
     </div>`;
   }).join('');
 
-  // bind actions
-  listEl.querySelectorAll('.delete-btn').forEach(btn=>{
+  listEl.querySelectorAll('.menu-btn').forEach(btn=>{
     btn.addEventListener('click', (e)=>{
       const id = e.target.closest('.course-card').dataset.id;
-      if(confirm('Supprimer ce cours de la liste ?')){
-        courses = courses.filter(c => c.id !== id);
-        saveCourses(courses);
-        render();
-      }
+      openMenuId = openMenuId === id ? null : id;
+      renderCourses();
     });
   });
-  listEl.querySelectorAll('.edit-btn').forEach(btn=>{
+  listEl.querySelectorAll('.dropdown-menu button').forEach(btn=>{
     btn.addEventListener('click', (e)=>{
-      editingId = e.target.closest('.course-card').dataset.id;
-      render();
-    });
-  });
-  listEl.querySelectorAll('.cancel-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      editingId = null;
-      render();
+      const card = e.target.closest('.course-card');
+      const id = card.dataset.id;
+      const action = btn.dataset.action;
+      const course = getAllCourses().find(c=>c.id===id);
+      if(action === 'edit'){ editingId = id; openMenuId = null; renderCourses(); }
+      else if(action === 'copy'){
+        navigator.clipboard?.writeText(course.url).catch(()=>{});
+        openMenuId = null; renderCourses();
+      }else if(action === 'delete'){
+        openMenuId = null;
+        showDeleteModal(course);
+        renderCourses();
+      }
     });
   });
   listEl.querySelectorAll('.save-btn').forEach(btn=>{
     btn.addEventListener('click', (e)=>{
       const card = e.target.closest('.course-card');
       const id = card.dataset.id;
-      const newName = card.querySelector('.edit-name').value.trim();
-      const newUrl = normalizeUrl(card.querySelector('.edit-url').value.trim());
-      if(!newName || !newUrl) return;
-      courses = courses.map(c => c.id === id ? {...c, name:newName, url:newUrl} : c);
-      saveCourses(courses);
+      const original = getAllCourses().find(c=>c.id===id);
+      const name = card.querySelector('.edit-name').value.trim();
+      const url = normalizeUrl(card.querySelector('.edit-url').value.trim());
+      const matiere = card.querySelector('.edit-matiere').value.trim();
+      const professeur = card.querySelector('.edit-prof').value.trim();
+      if(!name || !url) return;
+      upsertCourse({...original, name, url, matiere, professeur});
       editingId = null;
-      render();
+      populateFilters();
+      renderCourses();
     });
   });
+  listEl.querySelectorAll('.cancel-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ editingId = null; renderCourses(); });
+  });
+
+  document.addEventListener('click', function closeMenus(e){
+    if(!e.target.closest('.menu-wrap') && openMenuId){
+      openMenuId = null; renderCourses();
+    }
+  }, {once:true});
 }
 
 document.getElementById('btn-add').addEventListener('click', ()=>{
   const nameInput = document.getElementById('input-name');
   const urlInput = document.getElementById('input-url');
+  const suffixInput = document.getElementById('input-suffix');
+  const patternId = document.getElementById('pattern-select').value;
+  const matInput = document.getElementById('input-matiere');
+  const profInput = document.getElementById('input-prof');
   const name = nameInput.value.trim();
-  const url = normalizeUrl(urlInput.value.trim());
-  if(!name || !url){
-    alert('Merci de renseigner un nom et un lien.');
-    return;
+  let url;
+  if(patternId){
+    const pat = patterns.find(p=>p.id===patternId);
+    const suffix = suffixInput.value.trim();
+    if(!pat || !suffix){ alert('Merci de renseigner la partie finale du lien.'); return; }
+    url = pat.prefix + suffix;
+  }else{
+    url = normalizeUrl(urlInput.value.trim());
   }
-  courses.unshift({ id: Date.now().toString(36) + Math.random().toString(36).slice(2), name, url });
-  saveCourses(courses);
-  nameInput.value = '';
-  urlInput.value = '';
+  if(!name || !url){ alert('Merci de renseigner un nom et un lien.'); return; }
+  const course = {
+    id: 'user-' + Date.now().toString(36) + Math.random().toString(36).slice(2),
+    name, url, matiere: matInput.value.trim(), professeur: profInput.value.trim(),
+    addedAt: new Date().toISOString(), isBuiltin:false
+  };
+  userCourses.unshift(course);
+  saveJSON(LS_COURSES, userCourses);
+  nameInput.value = ''; urlInput.value = ''; suffixInput.value = ''; matInput.value = ''; profInput.value = '';
   nameInput.focus();
-  render();
+  populateFilters();
+  renderCourses();
 });
-
-// ajout via Entrée
-['input-name','input-url'].forEach(id=>{
+['input-name','input-url','input-suffix','input-matiere','input-prof'].forEach(id=>{
   document.getElementById(id).addEventListener('keydown', (e)=>{
     if(e.key === 'Enter') document.getElementById('btn-add').click();
   });
 });
+['search','filter-matiere','filter-prof','sort-select'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', renderCourses);
+  document.getElementById(id).addEventListener('change', renderCourses);
+});
 
-document.getElementById('search').addEventListener('input', render);
+let pendingDeleteCourse = null;
+const deleteModal = document.getElementById('delete-modal');
+const deleteInput = document.getElementById('delete-confirm-input');
+const deleteBtn = document.getElementById('delete-confirm-btn');
 
-render();
+function showDeleteModal(course){
+  pendingDeleteCourse = course;
+  document.getElementById('delete-modal-name').textContent = course.name;
+  deleteInput.value = '';
+  deleteBtn.disabled = true;
+  deleteModal.hidden = false;
+  deleteInput.focus();
+}
+deleteInput.addEventListener('input', ()=>{
+  deleteBtn.disabled = deleteInput.value.trim() !== (pendingDeleteCourse ? pendingDeleteCourse.name : '__none__');
+});
+document.getElementById('delete-cancel').addEventListener('click', ()=>{
+  deleteModal.hidden = true; pendingDeleteCourse = null;
+});
+deleteBtn.addEventListener('click', ()=>{
+  if(pendingDeleteCourse){
+    deleteCourse(pendingDeleteCourse.id);
+    deleteModal.hidden = true;
+    pendingDeleteCourse = null;
+    populateFilters();
+    renderCourses();
+  }
+});
 
-document.getElementById('shortcuts-toggle').addEventListener('click', ()=>{
-  document.querySelector('.shortcuts-dropdown').classList.toggle('open');
+function renderHistory(){
+  const all = getAllCourses().filter(c => c.addedAt);
+  all.sort((a,b)=> new Date(b.addedAt) - new Date(a.addedAt));
+  const listEl = document.getElementById('history-list');
+  if(all.length === 0){
+    listEl.innerHTML = "<div class=\"empty-state\"><div class=\"big\">🕓</div>Aucun historique pour le moment (les cours ajoutés directement dans le code n'ont pas de date).</div>";
+    return;
+  }
+  listEl.innerHTML = all.map(c=>{
+    const d = new Date(c.addedAt);
+    const dateStr = d.toLocaleDateString('fr-FR', {day:'numeric', month:'short', year:'numeric'});
+    const tags = [c.matiere ? `<span class="tag">📘 ${escapeHtml(c.matiere)}</span>` : '', c.professeur ? `<span class="tag">👤 ${escapeHtml(c.professeur)}</span>` : ''].join('');
+    return `
+    <div class="history-item">
+      <div class="history-date">${dateStr}</div>
+      <div class="history-info">
+        <div class="history-name">${escapeHtml(c.name)}</div>
+        ${tags ? `<div class="history-tags">${tags}</div>` : ''}
+      </div>
+      <a class="open-btn" href="${escapeHtml(c.url)}" target="_blank" rel="noopener">Ouvrir →</a>
+    </div>`;
+  }).join('');
+}
+
+populateFilters();
+renderCourses();
+renderBubbles();
+
+/* ================= THÈME CLAIR / SOMBRE ================= */
+const LS_THEME = 'mes-cours-theme';
+const themeBtn = document.getElementById('theme-toggle');
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  themeBtn.textContent = theme === 'light' ? '🌙' : '☀️';
+}
+applyTheme(loadJSON(LS_THEME, 'dark'));
+themeBtn.addEventListener('click', ()=>{
+  const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  const next = current === 'light' ? 'dark' : 'light';
+  saveJSON(LS_THEME, next);
+  applyTheme(next);
 });
 </script>
 </body>
