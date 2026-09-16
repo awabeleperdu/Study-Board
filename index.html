@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mes Cours — Bibliothèque</title>
-<!-- Script Supabase chargé au bon endroit -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/awabeleperdu/Study-Board/main/img/icone%20pngcp.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,7 +43,6 @@ section.page{display:none;}
 section.page.active{display:block;}
 .page-title{font-size:1.5rem;color:#fff;margin:0 0 20px;}
 
-/* bubbles */
 .bubble-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;}
 .bubble-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:.15s;text-align:center;position:relative;}
 .bubble-card:hover{border-color:var(--amber);transform:translateY(-3px);}
@@ -94,8 +92,8 @@ section.page.active{display:block;}
 .toolbar input:focus, .toolbar select:focus{outline:none;border-color:var(--amber);}
 .count-badge{font-family:var(--mono);font-size:.76rem;color:var(--text-dim);white-space:nowrap;width:100%;margin-top:2px;}
 
+#course-list{display:flex;flex-direction:column;gap:10px;width:100%;}
 .course-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px;transition:.15s;position:relative;width:100%;}
-.course-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px;transition:.15s;position:relative;}
 .course-card:hover{border-color:var(--amber);}
 .course-main{flex:1;min-width:0;}
 .course-name{color:#fff;font-weight:600;font-size:.98rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -118,9 +116,9 @@ section.page.active{display:block;}
 .edit-fields{display:none;flex:1;flex-wrap:wrap;gap:8px;min-width:0;}
 .course-card.editing .edit-fields{display:flex;}
 .course-card.editing .course-actions .open-btn, .course-card.editing .course-actions .menu-wrap{display:none;}
-.edit-fields input{flex:1;min-width:110px;background:#0d1117;border:1px solid var(--amber);border-radius:6px;color:var(--text);font-size:.85rem;padding:7px 10px;font-family:var(--sans);}
 .edit-save-cancel{display:none;gap:6px;}
 .course-card.editing .edit-save-cancel{display:flex;}
+.edit-fields input{flex:1;min-width:110px;background:#0d1117;border:1px solid var(--amber);border-radius:6px;color:var(--text);font-size:.85rem;padding:7px 10px;font-family:var(--sans);}
 
 .empty-state{text-align:center;padding:50px 20px;color:var(--text-dim);}
 .empty-state .big{font-size:2rem;margin-bottom:10px;}
@@ -140,7 +138,7 @@ button.btn:hover{border-color:var(--amber);color:var(--amber);}
 button.btn.primary{background:var(--amber);color:#0a0d12;border:none;font-weight:700;}
 button.btn.primary:hover{opacity:.9;color:#0a0d12;}
 
-.history-item{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;}
+.history-item{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;width:100%;}
 .history-date{font-family:var(--mono);font-size:.74rem;color:var(--amber);white-space:nowrap;min-width:90px;}
 .history-info{flex:1;min-width:0;}
 .history-name{color:#fff;font-weight:600;font-size:.92rem;}
@@ -348,7 +346,7 @@ footer{text-align:center;color:var(--text-dim);font-size:.78rem;padding:30px 20p
 
 </main>
 
-<footer>Tes cours sont synchronisés en ligne via Supabase sur tous tes appareils.</footer>
+<footer>Tes cours, bulles et raccourcis sont synchronisés en ligne via Supabase sur tous tes appareils.</footer>
 
 <div class="modal-overlay" id="delete-modal" hidden>
   <div class="modal-box">
@@ -375,7 +373,6 @@ const BUILTIN_COURSES = [
   { id: 'builtin-regex', name: "Regex", url: "https://awabeleperdu.github.io/Study-Board/cours/cours-regex.html", matiere: "INFO", professeur: "De cecco", addedAt: null, isBuiltin: true },
 ];
 
-const BUILTIN_BUBBLES = [];
 const BUILTIN_SHORTCUTS = [
   { name: "Gmail", icon: "📧", url: "https://mail.google.com" },
   { name: "Drive", icon: "🗂️", url: "https://drive.google.com" },
@@ -388,9 +385,7 @@ const BUILTIN_SHORTCUTS = [
 ];
 
 const LS_HIDDEN_COURSES = 'mes-cours-hidden-builtins';
-const LS_SHORTCUTS = 'mes-cours-shortcuts-v2';
 const LS_HIDDEN_SHORTCUTS = 'mes-cours-hidden-shortcuts';
-const LS_BUBBLES = 'mes-cours-bubbles';
 const LS_HIDDEN_BUBBLES = 'mes-cours-hidden-bubbles';
 
 function loadJSON(key, fallback){
@@ -410,14 +405,24 @@ function normalizeUrl(url){
 }
 
 let dbCourses = [];
+let dbShortcuts = [];
+let dbBubbles = [];
+let dbSettings = { theme: 'dark' };
 let hiddenBuiltinCourses = loadJSON(LS_HIDDEN_COURSES, []);
+let hiddenBuiltinShortcuts = loadJSON(LS_HIDDEN_SHORTCUTS, []);
+let hiddenBuiltinBubbles = loadJSON(LS_HIDDEN_BUBBLES, []);
 
-async function fetchSupabaseCourses(){
+async function fetchSupabaseData(){
   try {
-    const { data, error } = await supabaseClient.from('courses').select('*');
-    if(error){ console.error("Erreur chargement Supabase:", error); return; }
-    if(data){
-      dbCourses = data.map(row => ({
+    const [resCourses, resShortcuts, resBubbles, resSettings] = await Promise.all([
+      supabaseClient.from('courses').select('*'),
+      supabaseClient.from('shortcuts').select('*'),
+      supabaseClient.from('bubbles').select('*'),
+      supabaseClient.from('settings').select('*').eq('id', 1).single()
+    ]);
+
+    if(resCourses.data){
+      dbCourses = resCourses.data.map(row => ({
         id: row.id,
         name: row.name,
         url: row.url,
@@ -427,8 +432,30 @@ async function fetchSupabaseCourses(){
         isBuiltin: false
       }));
     }
+    if(resShortcuts.data){
+      dbShortcuts = resShortcuts.data.map(row => ({
+        id: row.id,
+        name: row.name,
+        icon: row.icon || '🔗',
+        url: row.url,
+        isBuiltin: false
+      }));
+    }
+    if(resBubbles.data){
+      dbBubbles = resBubbles.data.map(row => ({
+        id: row.id,
+        icon: row.icon || '📘',
+        matiere: row.matiere,
+        professeur: row.professeur || '',
+        isBuiltin: false
+      }));
+    }
+    if(resSettings.data && resSettings.data.theme){
+      dbSettings.theme = resSettings.data.theme;
+      applyTheme(dbSettings.theme);
+    }
   } catch(e) {
-    console.error("Erreur réseau Supabase:", e);
+    console.error("Erreur chargement Supabase:", e);
   }
 }
 
@@ -487,9 +514,6 @@ async function upsertCourse(course){
     if(idx >= 0) dbCourses[idx] = course;
   }
 }
-
-let userShortcuts = loadJSON(LS_SHORTCUTS, []);
-let hiddenBuiltinShortcuts = loadJSON(LS_HIDDEN_SHORTCUTS, []);
 
 const LS_PATTERNS = 'mes-cours-patterns';
 let patterns = loadJSON(LS_PATTERNS, []);
@@ -562,48 +586,58 @@ function getAllShortcuts(){
     id: 'bsc-' + s.name,
     name: s.name, icon: s.icon, url: s.url, isBuiltin:true
   })).filter(s => !hiddenBuiltinShortcuts.includes(s.id));
-  return [...builtinAsShortcuts, ...userShortcuts];
+  return [...builtinAsShortcuts, ...dbShortcuts];
 }
-function deleteShortcut(id){
+async function deleteShortcut(id){
   const sc = getAllShortcuts().find(s=>s.id===id);
   if(!sc) return;
   if(sc.isBuiltin){
     hiddenBuiltinShortcuts.push(id);
     saveJSON(LS_HIDDEN_SHORTCUTS, hiddenBuiltinShortcuts);
   }else{
-    userShortcuts = userShortcuts.filter(s=>s.id!==id);
-    saveJSON(LS_SHORTCUTS, userShortcuts);
+    const { error } = await supabaseClient.from('shortcuts').delete().eq('id', id);
+    if(error){ alert("Erreur lors de la suppression sur Supabase"); return; }
+    dbShortcuts = dbShortcuts.filter(s=>s.id!==id);
   }
 }
-function addShortcut(sc){
-  userShortcuts.push({...sc, id: 'user-' + Date.now().toString(36)});
-  saveJSON(LS_SHORTCUTS, userShortcuts);
+async function addShortcut(sc){
+  const { data, error } = await supabaseClient.from('shortcuts').insert([{
+    name: sc.name, icon: sc.icon, url: sc.url
+  }]).select();
+  if(!error && data && data[0]){
+    dbShortcuts.push({
+      id: data[0].id,
+      name: data[0].name,
+      icon: data[0].icon,
+      url: data[0].url,
+      isBuiltin: false
+    });
+  }
 }
-
-let userBubbles = loadJSON(LS_BUBBLES, []);
-let hiddenBuiltinBubbles = loadJSON(LS_HIDDEN_BUBBLES, []);
 
 function getAllBubbles(){
-  const builtinAsBubbles = BUILTIN_BUBBLES.map(b=>({
-    id: 'bbub-' + b.matiere,
-    icon: b.icon||'📘', matiere: b.matiere, professeur: b.professeur||'', isBuiltin:true
-  })).filter(b => !hiddenBuiltinBubbles.includes(b.id));
-  return [...builtinAsBubbles, ...userBubbles];
+  return dbBubbles;
 }
-function deleteBubble(id){
+async function deleteBubble(id){
   const b = getAllBubbles().find(x=>x.id===id);
   if(!b) return;
-  if(b.isBuiltin){
-    hiddenBuiltinBubbles.push(id);
-    saveJSON(LS_HIDDEN_BUBBLES, hiddenBuiltinBubbles);
-  }else{
-    userBubbles = userBubbles.filter(x=>x.id!==id);
-    saveJSON(LS_BUBBLES, userBubbles);
-  }
+  const { error } = await supabaseClient.from('bubbles').delete().eq('id', id);
+  if(error){ alert("Erreur lors de la suppression sur Supabase"); return; }
+  dbBubbles = dbBubbles.filter(x=>x.id!==id);
 }
-function addBubble(b){
-  userBubbles.push({...b, id: 'user-' + Date.now().toString(36)});
-  saveJSON(LS_BUBBLES, userBubbles);
+async function addBubble(b){
+  const { data, error } = await supabaseClient.from('bubbles').insert([{
+    icon: b.icon, matiere: b.matiere, professeur: b.professeur
+  }]).select();
+  if(!error && data && data[0]){
+    dbBubbles.push({
+      id: data[0].id,
+      icon: data[0].icon,
+      matiere: data[0].matiere,
+      professeur: data[0].professeur || '',
+      isBuiltin: false
+    });
+  }
 }
 function countCoursesForBubble(b){
   return getAllCourses().filter(c => c.matiere === b.matiere && (!b.professeur || c.professeur === b.professeur)).length;
@@ -622,9 +656,9 @@ function renderBubbles(){
   `).join('') + `<div class="bubble-add-tile" id="bubble-add-tile"><span style="font-size:1.5rem;">+</span><span>Créer une bulle</span></div>`;
 
   grid.querySelectorAll('.bubble-del').forEach(btn=>{
-    btn.addEventListener('click', (e)=>{
+    btn.addEventListener('click', async (e)=>{
       e.stopPropagation();
-      deleteBubble(btn.dataset.id);
+      await deleteBubble(btn.dataset.id);
       renderBubbles();
     });
   });
@@ -652,12 +686,12 @@ document.getElementById('bub-cancel').addEventListener('click', ()=>{
   document.getElementById('bub-matiere').value = '';
   document.getElementById('bub-prof').value = '';
 });
-document.getElementById('bub-save').addEventListener('click', ()=>{
+document.getElementById('bub-save').addEventListener('click', async ()=>{
   const icon = document.getElementById('bub-icon').value.trim();
   const matiere = document.getElementById('bub-matiere').value.trim();
   const professeur = document.getElementById('bub-prof').value.trim();
   if(!matiere){ alert('Merci de renseigner au moins une matière.'); return; }
-  addBubble({icon, matiere, professeur});
+  await addBubble({icon, matiere, professeur});
   document.getElementById('bub-cancel').click();
   renderBubbles();
 });
@@ -689,9 +723,9 @@ function renderShortcuts(){
   `).join('') + `<div class="shortcut-add-tile" id="shortcut-add-tile"><span style="font-size:1.3rem;">+</span><span>Ajouter</span></div>`;
 
   grid.querySelectorAll('.shortcut-del').forEach(btn=>{
-    btn.addEventListener('click', (e)=>{
+    btn.addEventListener('click', async (e)=>{
       e.preventDefault(); e.stopPropagation();
-      deleteShortcut(btn.dataset.id);
+      await deleteShortcut(btn.dataset.id);
       renderShortcuts();
     });
   });
@@ -710,12 +744,12 @@ document.getElementById('sc-cancel').addEventListener('click', ()=>{
   document.getElementById('sc-icon').value = '';
   document.getElementById('sc-url').value = '';
 });
-document.getElementById('sc-save').addEventListener('click', ()=>{
+document.getElementById('sc-save').addEventListener('click', async ()=>{
   const name = document.getElementById('sc-name').value.trim();
   const icon = document.getElementById('sc-icon').value.trim();
   const url = normalizeUrl(document.getElementById('sc-url').value.trim());
   if(!name || !url){ alert('Merci de renseigner au moins un nom et un lien.'); return; }
-  addShortcut({name, icon, url});
+  await addShortcut({name, icon, url});
   document.getElementById('sc-cancel').click();
   renderShortcuts();
 });
@@ -809,7 +843,7 @@ function renderCourses(){
           </div>` : ''}
         </div>
       </div>
-    `;
+    </div>`;
   }).join('');
 
   listEl.querySelectorAll('.menu-btn').forEach(btn=>{
@@ -836,7 +870,7 @@ function renderCourses(){
       }
     });
   });
-  listEl.querySelectorAll('.save-btn').forEach(async (btn)=>{
+  listEl.querySelectorAll('.save-btn').forEach((btn)=>{
     btn.addEventListener('click', async (e)=>{
       const card = e.target.closest('.course-card');
       const id = card.dataset.id;
@@ -977,27 +1011,31 @@ function renderHistory(){
   }).join('');
 }
 
-async function initApp(){
-  await fetchSupabaseCourses();
-  populateFilters();
-  renderCourses();
-  renderBubbles();
-}
-initApp();
-
-const LS_THEME = 'mes-cours-theme';
 const themeBtn = document.getElementById('theme-toggle');
 function applyTheme(theme){
   document.documentElement.setAttribute('data-theme', theme);
   themeBtn.textContent = theme === 'light' ? '🌙' : '☀️';
 }
-applyTheme(loadJSON(LS_THEME, 'dark'));
-themeBtn.addEventListener('click', ()=>{
+
+async function saveThemeToSupabase(theme){
+  dbSettings.theme = theme;
+  applyTheme(theme);
+  await supabaseClient.from('settings').upsert({ id: 1, theme: theme });
+}
+
+themeBtn.addEventListener('click', async ()=>{
   const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
   const next = current === 'light' ? 'dark' : 'light';
-  saveJSON(LS_THEME, next);
-  applyTheme(next);
+  await saveThemeToSupabase(next);
 });
+
+async function initApp(){
+  await fetchSupabaseData();
+  populateFilters();
+  renderCourses();
+  renderBubbles();
+}
+initApp();
 </script>
 </body>
 </html>
