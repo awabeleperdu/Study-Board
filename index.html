@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mes Cours — Bibliothèque</title>
-<!-- Pour ton icône de page (favicon) : mets ton fichier (ex: favicon.png ou favicon.ico)
-     dans le même dossier que ce fichier html, puis remplace "favicon.png" ci-dessous par son nom. -->
+<!-- Script Supabase chargé au bon endroit -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/awabeleperdu/Study-Board/main/img/icone%20pngcp.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -170,8 +170,6 @@ footer{text-align:center;color:var(--text-dim);font-size:.78rem;padding:30px 20p
 <header class="topbar">
   <div class="topbar-inner">
     <div class="brand">
-      <!-- Ton logo : mets ton fichier (ex: logo.png) dans le même dossier que ce fichier html,
-           remplace "logo.png" par son nom ci-dessous, puis supprime l'emoji 📚 juste après. -->
       <img src="https://raw.githubusercontent.com/awabeleperdu/Study-Board/main/img/icone%20pngcp.png" alt="Logo" style="height:26px;width:auto;border-radius:6px;" onerror="this.style.display='none'">
       📚 <span class="dot">Mes Cours</span>
     </div>
@@ -365,16 +363,11 @@ footer{text-align:center;color:var(--text-dim);font-size:.78rem;padding:30px 20p
 </div>
 
 <script>
-const supabase = window.supabase.createClient(
+const supabaseClient = window.supabase.createClient(
   'https://hbsgrmkbkwnlpmboojaz.supabase.co',
   'sb_publishable_vEH1IPLMfwjMovB_c9JpnA_PITJVuNO'
 );
 
-/* ================================================================
-   COURS AJOUTÉS DIRECTEMENT DANS LE CODE
-   Ajoute une ligne ici pour qu'un cours apparaisse automatiquement
-   sur TOUS tes appareils dès que tu ouvres ce fichier.
-================================================================ */
 const BUILTIN_COURSES = [
   { id: 'builtin-cpp', name: "C++", url: "https://awabeleperdu.github.io/Study-Board/cours/cours-cpp.html", matiere: "INFO", professeur: "Neou", addedAt: null, isBuiltin: true },
   { id: 'builtin-linux', name: "Linux", url: "https://awabeleperdu.github.io/Study-Board/cours/cours-linux-fichiers.html", matiere: "INFO", professeur: "Leroy", addedAt: null, isBuiltin: true },
@@ -421,7 +414,7 @@ let hiddenBuiltinCourses = loadJSON(LS_HIDDEN_COURSES, []);
 
 async function fetchSupabaseCourses(){
   try {
-    const { data, error } = await supabase.from('courses').select('*');
+    const { data, error } = await supabaseClient.from('courses').select('*');
     if(error){ console.error("Erreur chargement Supabase:", error); return; }
     if(data){
       dbCourses = data.map(row => ({
@@ -451,7 +444,7 @@ async function deleteCourse(id){
     hiddenBuiltinCourses.push(id);
     saveJSON(LS_HIDDEN_COURSES, hiddenBuiltinCourses);
   } else {
-    const { error } = await supabase.from('courses').delete().eq('id', id);
+    const { error } = await supabaseClient.from('courses').delete().eq('id', id);
     if(error){ alert("Erreur lors de la suppression sur Supabase"); return; }
     dbCourses = dbCourses.filter(c => c.id !== id);
   }
@@ -462,7 +455,6 @@ async function upsertCourse(course){
     hiddenBuiltinCourses.push(course.id);
     saveJSON(LS_HIDDEN_COURSES, hiddenBuiltinCourses);
     
-    // Insérer le builtin comme nouveau cours cloud dans Supabase
     const newEntry = {
       name: course.name,
       url: course.url,
@@ -470,7 +462,7 @@ async function upsertCourse(course){
       professeur: course.professeur,
       added_at: new Date().toISOString()
     };
-    const { data, error } = await supabase.from('courses').insert([newEntry]).select();
+    const { data, error } = await supabaseClient.from('courses').insert([newEntry]).select();
     if(!error && data && data[0]){
       dbCourses.push({
         id: data[0].id,
@@ -483,7 +475,7 @@ async function upsertCourse(course){
       });
     }
   } else {
-    const { error } = await supabase.from('courses').update({
+    const { error } = await supabaseClient.from('courses').update({
       name: course.name,
       url: course.url,
       matiere: course.matiere,
@@ -588,7 +580,6 @@ function addShortcut(sc){
   saveJSON(LS_SHORTCUTS, userShortcuts);
 }
 
-/* ================= BULLES DE PARCOURS ================= */
 let userBubbles = loadJSON(LS_BUBBLES, []);
 let hiddenBuiltinBubbles = loadJSON(LS_HIDDEN_BUBBLES, []);
 
@@ -899,7 +890,7 @@ document.getElementById('btn-add').addEventListener('click', async ()=>{
     added_at: new Date().toISOString()
   };
 
-  const { data, error } = await supabase.from('courses').insert([newRow]).select();
+  const { data, error } = await supabaseClient.from('courses').insert([newRow]).select();
   if(error){
     alert("Erreur lors de l'ajout sur Supabase : " + error.message);
     return;
@@ -986,7 +977,6 @@ function renderHistory(){
   }).join('');
 }
 
-// Initialisation asynchrone globale
 async function initApp(){
   await fetchSupabaseCourses();
   populateFilters();
@@ -995,7 +985,6 @@ async function initApp(){
 }
 initApp();
 
-/* ================= THÈME CLAIR / SOMBRE ================= */
 const LS_THEME = 'mes-cours-theme';
 const themeBtn = document.getElementById('theme-toggle');
 function applyTheme(theme){
@@ -1010,6 +999,5 @@ themeBtn.addEventListener('click', ()=>{
   applyTheme(next);
 });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </body>
 </html>
