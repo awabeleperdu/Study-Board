@@ -350,7 +350,7 @@ footer{text-align:center;color:var(--text-dim);font-size:.78rem;padding:30px 20p
 
 </main>
 
-<footer>Tes cours sont enregistrés sur cet appareil (localStorage), plus les cours ajoutés directement dans le code du site — aucun serveur, aucun compte.</footer>
+<footer>Tes cours sont synchronisés en ligne via Supabase sur tous tes appareils.</footer>
 
 <div class="modal-overlay" id="delete-modal" hidden>
   <div class="modal-box">
@@ -369,36 +369,20 @@ const supabase = window.supabase.createClient(
   'https://hbsgrmkbkwnlpmboojaz.supabase.co',
   'sb_publishable_vEH1IPLMfwjMovB_c9JpnA_PITJVuNO'
 );
+
 /* ================================================================
    COURS AJOUTÉS DIRECTEMENT DANS LE CODE
    Ajoute une ligne ici pour qu'un cours apparaisse automatiquement
-   sur TOUS tes appareils dès que tu ouvres ce fichier — pas besoin
-   de le rentrer à la main dans chaque navigateur.
-   matiere et professeur sont optionnels (laisse "" si inutile).
+   sur TOUS tes appareils dès que tu ouvres ce fichier.
 ================================================================ */
 const BUILTIN_COURSES = [
-  { name: "C++", url: "https://awabeleperdu.github.io/Study-Board/cours/cours-cpp.html", matiere: "INFO", professeur: "Neou" },
-  { name: "Linux", url: "https://awabeleperdu.github.io/Study-Board/cours/cours-linux-fichiers.html", matiere: "INFO", professeur: "Leroy" },
-  { name: "Gestion Fichiers", url: "https://awabeleperdu.github.io/Study-Board/cours/cours-linux-gestion-fichiers.html", matiere: "INFO", professeur: "Leroy" },
-  { name: "Regex", url: "https://awabeleperdu.github.io/Study-Board/cours/cours-regex.html", matiere: "INFO", professeur: "De cecco" },
+  { id: 'builtin-cpp', name: "C++", url: "https://awabeleperdu.github.io/Study-Board/cours/cours-cpp.html", matiere: "INFO", professeur: "Neou", addedAt: null, isBuiltin: true },
+  { id: 'builtin-linux', name: "Linux", url: "https://awabeleperdu.github.io/Study-Board/cours/cours-linux-fichiers.html", matiere: "INFO", professeur: "Leroy", addedAt: null, isBuiltin: true },
+  { id: 'builtin-gestion', name: "Gestion Fichiers", url: "https://awabeleperdu.github.io/Study-Board/cours/cours-linux-gestion-fichiers.html", matiere: "INFO", professeur: "Leroy", addedAt: null, isBuiltin: true },
+  { id: 'builtin-regex', name: "Regex", url: "https://awabeleperdu.github.io/Study-Board/cours/cours-regex.html", matiere: "INFO", professeur: "De cecco", addedAt: null, isBuiltin: true },
 ];
 
-/* ================================================================
-   BULLES DE PARCOURS (matière + professeur en option)
-   Ajoute une ligne ici pour qu'une bulle apparaisse automatiquement
-   sur TOUS tes appareils — même principe que BUILTIN_COURSES.
-   professeur est optionnel (laisse "" si tu ne veux pas préciser).
-   Utile si une même matière a plusieurs profs : crée une bulle par prof.
-================================================================ */
-const BUILTIN_BUBBLES = [
-  // { icon: "🧮", matiere: "Maths", professeur: "" },
-  // { icon: "💻", matiere: "NSI", professeur: "" },
-  // { icon: "🔌", matiere: "SI", professeur: "" },
-  // { icon: "🧮", matiere: "Maths", professeur: "Mme Martin" },
-];
-/* ================================================================ */
-
-/* Raccourcis ajoutés directement dans le code (même principe) */
+const BUILTIN_BUBBLES = [];
 const BUILTIN_SHORTCUTS = [
   { name: "Gmail", icon: "📧", url: "https://mail.google.com" },
   { name: "Drive", icon: "🗂️", url: "https://drive.google.com" },
@@ -409,20 +393,13 @@ const BUILTIN_SHORTCUTS = [
   { name: "Traduction", icon: "🌐", url: "https://translate.google.com" },
   { name: "Claude", icon: "✨", url: "https://claude.ai" },
 ];
-/* ================================================================ */
 
-const LS_COURSES = 'mes-cours-liste-v2';
 const LS_HIDDEN_COURSES = 'mes-cours-hidden-builtins';
 const LS_SHORTCUTS = 'mes-cours-shortcuts-v2';
 const LS_HIDDEN_SHORTCUTS = 'mes-cours-hidden-shortcuts';
 const LS_BUBBLES = 'mes-cours-bubbles';
 const LS_HIDDEN_BUBBLES = 'mes-cours-hidden-bubbles';
 
-function slugId(prefix, str){
-  let h = 0;
-  for(let i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i)) | 0; }
-  return prefix + Math.abs(h).toString(36);
-}
 function loadJSON(key, fallback){
   try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }catch(e){ return fallback; }
 }
@@ -439,37 +416,84 @@ function normalizeUrl(url){
   return url;
 }
 
-let userCourses = loadJSON(LS_COURSES, []);
+let dbCourses = [];
 let hiddenBuiltinCourses = loadJSON(LS_HIDDEN_COURSES, []);
 
-function getAllCourses(){
-  const builtinAsCourses = BUILTIN_COURSES.map(c=>({
-    id: slugId('builtin-', c.name + '|' + c.url),
-    name: c.name, url: c.url, matiere: c.matiere||'', professeur: c.professeur||'',
-    addedAt: null, isBuiltin: true
-  })).filter(c => !hiddenBuiltinCourses.includes(c.id) && !userCourses.some(u => u.id === c.id));
-  return [...builtinAsCourses, ...userCourses];
+async function fetchSupabaseCourses(){
+  try {
+    const { data, error } = await supabase.from('courses').select('*');
+    if(error){ console.error("Erreur chargement Supabase:", error); return; }
+    if(data){
+      dbCourses = data.map(row => ({
+        id: row.id,
+        name: row.name,
+        url: row.url,
+        matiere: row.matiere || '',
+        professeur: row.professeur || '',
+        addedAt: row.added_at || row.addedAt || null,
+        isBuiltin: false
+      }));
+    }
+  } catch(e) {
+    console.error("Erreur réseau Supabase:", e);
+  }
 }
-function deleteCourse(id){
+
+function getAllCourses(){
+  const activeBuiltins = BUILTIN_COURSES.filter(c => !hiddenBuiltinCourses.includes(c.id));
+  return [...activeBuiltins, ...dbCourses];
+}
+
+async function deleteCourse(id){
   const course = getAllCourses().find(c => c.id === id);
   if(!course) return;
   if(course.isBuiltin){
     hiddenBuiltinCourses.push(id);
     saveJSON(LS_HIDDEN_COURSES, hiddenBuiltinCourses);
-  }else{
-    userCourses = userCourses.filter(c => c.id !== id);
-    saveJSON(LS_COURSES, userCourses);
+  } else {
+    const { error } = await supabase.from('courses').delete().eq('id', id);
+    if(error){ alert("Erreur lors de la suppression sur Supabase"); return; }
+    dbCourses = dbCourses.filter(c => c.id !== id);
   }
 }
-function upsertCourse(course){
+
+async function upsertCourse(course){
   if(course.isBuiltin){
     hiddenBuiltinCourses.push(course.id);
     saveJSON(LS_HIDDEN_COURSES, hiddenBuiltinCourses);
-    course = {...course, isBuiltin:false, addedAt: course.addedAt || new Date().toISOString()};
+    
+    // Insérer le builtin comme nouveau cours cloud dans Supabase
+    const newEntry = {
+      name: course.name,
+      url: course.url,
+      matiere: course.matiere,
+      professeur: course.professeur,
+      added_at: new Date().toISOString()
+    };
+    const { data, error } = await supabase.from('courses').insert([newEntry]).select();
+    if(!error && data && data[0]){
+      dbCourses.push({
+        id: data[0].id,
+        name: data[0].name,
+        url: data[0].url,
+        matiere: data[0].matiere || '',
+        professeur: data[0].professeur || '',
+        addedAt: data[0].added_at,
+        isBuiltin: false
+      });
+    }
+  } else {
+    const { error } = await supabase.from('courses').update({
+      name: course.name,
+      url: course.url,
+      matiere: course.matiere,
+      professeur: course.professeur
+    }).eq('id', course.id);
+    
+    if(error){ alert("Erreur lors de la mise à jour sur Supabase"); return; }
+    const idx = dbCourses.findIndex(c => c.id === course.id);
+    if(idx >= 0) dbCourses[idx] = course;
   }
-  const idx = userCourses.findIndex(c => c.id === course.id);
-  if(idx >= 0) userCourses[idx] = course; else userCourses.push(course);
-  saveJSON(LS_COURSES, userCourses);
 }
 
 let userShortcuts = loadJSON(LS_SHORTCUTS, []);
@@ -543,7 +567,7 @@ renderPatternsList();
 
 function getAllShortcuts(){
   const builtinAsShortcuts = BUILTIN_SHORTCUTS.map(s=>({
-    id: slugId('bsc-', s.name + '|' + s.url),
+    id: 'bsc-' + s.name,
     name: s.name, icon: s.icon, url: s.url, isBuiltin:true
   })).filter(s => !hiddenBuiltinShortcuts.includes(s.id));
   return [...builtinAsShortcuts, ...userShortcuts];
@@ -570,7 +594,7 @@ let hiddenBuiltinBubbles = loadJSON(LS_HIDDEN_BUBBLES, []);
 
 function getAllBubbles(){
   const builtinAsBubbles = BUILTIN_BUBBLES.map(b=>({
-    id: slugId('bbub-', b.matiere + '|' + (b.professeur||'')),
+    id: 'bbub-' + b.matiere,
     icon: b.icon||'📘', matiere: b.matiere, professeur: b.professeur||'', isBuiltin:true
   })).filter(b => !hiddenBuiltinBubbles.includes(b.id));
   return [...builtinAsBubbles, ...userBubbles];
@@ -794,7 +818,7 @@ function renderCourses(){
           </div>` : ''}
         </div>
       </div>
-    </div>`;
+    `;
   }).join('');
 
   listEl.querySelectorAll('.menu-btn').forEach(btn=>{
@@ -821,8 +845,8 @@ function renderCourses(){
       }
     });
   });
-  listEl.querySelectorAll('.save-btn').forEach(btn=>{
-    btn.addEventListener('click', (e)=>{
+  listEl.querySelectorAll('.save-btn').forEach(async (btn)=>{
+    btn.addEventListener('click', async (e)=>{
       const card = e.target.closest('.course-card');
       const id = card.dataset.id;
       const original = getAllCourses().find(c=>c.id===id);
@@ -831,7 +855,7 @@ function renderCourses(){
       const matiere = card.querySelector('.edit-matiere').value.trim();
       const professeur = card.querySelector('.edit-prof').value.trim();
       if(!name || !url) return;
-      upsertCourse({...original, name, url, matiere, professeur});
+      await upsertCourse({...original, name, url, matiere, professeur});
       editingId = null;
       populateFilters();
       renderCourses();
@@ -848,7 +872,7 @@ function renderCourses(){
   }, {once:true});
 }
 
-document.getElementById('btn-add').addEventListener('click', ()=>{
+document.getElementById('btn-add').addEventListener('click', async ()=>{
   const nameInput = document.getElementById('input-name');
   const urlInput = document.getElementById('input-url');
   const suffixInput = document.getElementById('input-suffix');
@@ -866,18 +890,39 @@ document.getElementById('btn-add').addEventListener('click', ()=>{
     url = normalizeUrl(urlInput.value.trim());
   }
   if(!name || !url){ alert('Merci de renseigner un nom et un lien.'); return; }
-  const course = {
-    id: 'user-' + Date.now().toString(36) + Math.random().toString(36).slice(2),
-    name, url, matiere: matInput.value.trim(), professeur: profInput.value.trim(),
-    addedAt: new Date().toISOString(), isBuiltin:false
+  
+  const newRow = {
+    name,
+    url,
+    matiere: matInput.value.trim(),
+    professeur: profInput.value.trim(),
+    added_at: new Date().toISOString()
   };
-  userCourses.unshift(course);
-  saveJSON(LS_COURSES, userCourses);
+
+  const { data, error } = await supabase.from('courses').insert([newRow]).select();
+  if(error){
+    alert("Erreur lors de l'ajout sur Supabase : " + error.message);
+    return;
+  }
+
+  if(data && data[0]){
+    dbCourses.unshift({
+      id: data[0].id,
+      name: data[0].name,
+      url: data[0].url,
+      matiere: data[0].matiere || '',
+      professeur: data[0].professeur || '',
+      addedAt: data[0].added_at,
+      isBuiltin: false
+    });
+  }
+
   nameInput.value = ''; urlInput.value = ''; suffixInput.value = ''; matInput.value = ''; profInput.value = '';
   nameInput.focus();
   populateFilters();
   renderCourses();
 });
+
 ['input-name','input-url','input-suffix','input-matiere','input-prof'].forEach(id=>{
   document.getElementById(id).addEventListener('keydown', (e)=>{
     if(e.key === 'Enter') document.getElementById('btn-add').click();
@@ -907,9 +952,9 @@ deleteInput.addEventListener('input', ()=>{
 document.getElementById('delete-cancel').addEventListener('click', ()=>{
   deleteModal.hidden = true; pendingDeleteCourse = null;
 });
-deleteBtn.addEventListener('click', ()=>{
+deleteBtn.addEventListener('click', async ()=>{
   if(pendingDeleteCourse){
-    deleteCourse(pendingDeleteCourse.id);
+    await deleteCourse(pendingDeleteCourse.id);
     deleteModal.hidden = true;
     pendingDeleteCourse = null;
     populateFilters();
@@ -922,7 +967,7 @@ function renderHistory(){
   all.sort((a,b)=> new Date(b.addedAt) - new Date(a.addedAt));
   const listEl = document.getElementById('history-list');
   if(all.length === 0){
-    listEl.innerHTML = "<div class=\"empty-state\"><div class=\"big\">🕓</div>Aucun historique pour le moment (les cours ajoutés directement dans le code n'ont pas de date).</div>";
+    listEl.innerHTML = "<div class=\"empty-state\"><div class=\"big\">🕓</div>Aucun historique pour le moment.</div>";
     return;
   }
   listEl.innerHTML = all.map(c=>{
@@ -941,9 +986,14 @@ function renderHistory(){
   }).join('');
 }
 
-populateFilters();
-renderCourses();
-renderBubbles();
+// Initialisation asynchrone globale
+async function initApp(){
+  await fetchSupabaseCourses();
+  populateFilters();
+  renderCourses();
+  renderBubbles();
+}
+initApp();
 
 /* ================= THÈME CLAIR / SOMBRE ================= */
 const LS_THEME = 'mes-cours-theme';
