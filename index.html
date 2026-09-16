@@ -346,7 +346,7 @@ footer{text-align:center;color:var(--text-dim);font-size:.78rem;padding:30px 20p
 
 </main>
 
-<footer>Tes cours, bulles et raccourcis sont synchronisés en ligne via Supabase sur tous tes appareils.</footer>
+<footer>Tes cours, bulles, raccourcis et modèles sont synchronisés en ligne via Supabase sur tous tes appareils.</footer>
 
 <div class="modal-overlay" id="delete-modal" hidden>
   <div class="modal-box">
@@ -386,7 +386,6 @@ const BUILTIN_SHORTCUTS = [
 
 const LS_HIDDEN_COURSES = 'mes-cours-hidden-builtins';
 const LS_HIDDEN_SHORTCUTS = 'mes-cours-hidden-shortcuts';
-const LS_HIDDEN_BUBBLES = 'mes-cours-hidden-bubbles';
 
 function loadJSON(key, fallback){
   try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }catch(e){ return fallback; }
@@ -407,17 +406,18 @@ function normalizeUrl(url){
 let dbCourses = [];
 let dbShortcuts = [];
 let dbBubbles = [];
+let dbPatterns = [];
 let dbSettings = { theme: 'dark' };
 let hiddenBuiltinCourses = loadJSON(LS_HIDDEN_COURSES, []);
 let hiddenBuiltinShortcuts = loadJSON(LS_HIDDEN_SHORTCUTS, []);
-let hiddenBuiltinBubbles = loadJSON(LS_HIDDEN_BUBBLES, []);
 
 async function fetchSupabaseData(){
   try {
-    const [resCourses, resShortcuts, resBubbles, resSettings] = await Promise.all([
+    const [resCourses, resShortcuts, resBubbles, resPatterns, resSettings] = await Promise.all([
       supabaseClient.from('courses').select('*'),
       supabaseClient.from('shortcuts').select('*'),
       supabaseClient.from('bubbles').select('*'),
+      supabaseClient.from('patterns').select('*'),
       supabaseClient.from('settings').select('*').eq('id', 1).single()
     ]);
 
@@ -448,6 +448,13 @@ async function fetchSupabaseData(){
         matiere: row.matiere,
         professeur: row.professeur || '',
         isBuiltin: false
+      }));
+    }
+    if(resPatterns.data){
+      dbPatterns = resPatterns.data.map(row => ({
+        id: row.id,
+        name: row.name,
+        prefix: row.prefix
       }));
     }
     if(resSettings.data && resSettings.data.theme){
@@ -515,24 +522,20 @@ async function upsertCourse(course){
   }
 }
 
-const LS_PATTERNS = 'mes-cours-patterns';
-let patterns = loadJSON(LS_PATTERNS, []);
-function savePatterns(){ saveJSON(LS_PATTERNS, patterns); }
-
 function renderPatternSelect(){
   const sel = document.getElementById('pattern-select');
   const cur = sel.value;
   sel.innerHTML = '<option value="">Lien complet (pas de modèle)</option>' +
-    patterns.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
-  sel.value = patterns.some(p=>p.id===cur) ? cur : '';
+    dbPatterns.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+  sel.value = dbPatterns.some(p=>p.id===cur) ? cur : '';
 }
 function renderPatternsList(){
   const el = document.getElementById('patterns-list');
-  if(patterns.length===0){
+  if(dbPatterns.length===0){
     el.innerHTML = "<p style=\"color:var(--text-dim);font-size:.82rem;\">Aucun modèle enregistré pour l'instant.</p>";
     return;
   }
-  el.innerHTML = patterns.map(p=>`
+  el.innerHTML = dbPatterns.map(p=>`
     <div style="display:flex;align-items:center;gap:8px;background:#0d1117;border:1px solid var(--border);border-radius:6px;padding:8px 10px;margin-bottom:6px;">
       <div style="flex:1;min-width:0;">
         <div style="color:#fff;font-size:.85rem;">${escapeHtml(p.name)}</div>
@@ -541,9 +544,13 @@ function renderPatternsList(){
       <button class="icon-btn pat-del" data-id="${p.id}" title="Supprimer">🗑</button>
     </div>`).join('');
   el.querySelectorAll('.pat-del').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      patterns = patterns.filter(p=>p.id!==btn.dataset.id);
-      savePatterns(); renderPatternsList(); renderPatternSelect();
+    btn.addEventListener('click', async ()=>{
+      const id = btn.dataset.id;
+      const { error } = await supabaseClient.from('patterns').delete().eq('id', id);
+      if(!error){
+        dbPatterns = dbPatterns.filter(p=>p.id!==id);
+        renderPatternsList(); renderPatternSelect();
+      }
     });
   });
 }
@@ -553,33 +560,36 @@ document.getElementById('manage-patterns-btn').addEventListener('click', ()=>{
 document.getElementById('pat-cancel').addEventListener('click', ()=>{
   document.getElementById('patterns-panel').classList.remove('open');
 });
-document.getElementById('pat-save').addEventListener('click', ()=>{
+document.getElementById('pat-save').addEventListener('click', async ()=>{
   const name = document.getElementById('pat-name').value.trim();
   const prefix = document.getElementById('pat-prefix').value.trim();
   if(!name || !prefix){ alert('Merci de renseigner un nom et un préfixe.'); return; }
-  patterns.push({id:'pat-'+Date.now().toString(36)+Math.random().toString(36).slice(2), name, prefix});
-  savePatterns();
-  document.getElementById('pat-name').value = '';
-  document.getElementById('pat-prefix').value = '';
-  renderPatternsList();
-  renderPatternSelect();
+  
+  const { data, error } = await supabaseClient.from('patterns').insert([{ name, prefix }]).select();
+  if(!error && data && data[0]){
+    dbPatterns.push({ id: data[0].id, name: data[0].name, prefix: data[0].prefix });
+    document.getElementById('pat-name').value = '';
+    document.getElementById('pat-prefix').value = '';
+    renderPatternsList();
+    renderPatternSelect();
+  }
 });
 document.getElementById('pattern-select').addEventListener('change', ()=>{
   const id = document.getElementById('pattern-select').value;
   const fullRow = document.getElementById('url-full-row');
   const patRow = document.getElementById('pattern-url-row');
   if(id){
-    const pat = patterns.find(p=>p.id===id);
-    document.getElementById('pattern-prefix-label').textContent = pat.prefix;
-    fullRow.style.display = 'none';
-    patRow.style.display = 'flex';
+    const pat = dbPatterns.find(p=>p.id===id);
+    if(pat){
+      document.getElementById('pattern-prefix-label').textContent = pat.prefix;
+      fullRow.style.display = 'none';
+      patRow.style.display = 'flex';
+    }
   }else{
     fullRow.style.display = 'flex';
     patRow.style.display = 'none';
   }
 });
-renderPatternSelect();
-renderPatternsList();
 
 function getAllShortcuts(){
   const builtinAsShortcuts = BUILTIN_SHORTCUTS.map(s=>({
@@ -619,8 +629,6 @@ function getAllBubbles(){
   return dbBubbles;
 }
 async function deleteBubble(id){
-  const b = getAllBubbles().find(x=>x.id===id);
-  if(!b) return;
   const { error } = await supabaseClient.from('bubbles').delete().eq('id', id);
   if(error){ alert("Erreur lors de la suppression sur Supabase"); return; }
   dbBubbles = dbBubbles.filter(x=>x.id!==id);
@@ -907,7 +915,7 @@ document.getElementById('btn-add').addEventListener('click', async ()=>{
   const name = nameInput.value.trim();
   let url;
   if(patternId){
-    const pat = patterns.find(p=>p.id===patternId);
+    const pat = dbPatterns.find(p=>p.id===patternId);
     const suffix = suffixInput.value.trim();
     if(!pat || !suffix){ alert('Merci de renseigner la partie finale du lien.'); return; }
     url = pat.prefix + suffix;
@@ -1031,9 +1039,12 @@ themeBtn.addEventListener('click', async ()=>{
 
 async function initApp(){
   await fetchSupabaseData();
+  renderPatternsList();
+  renderPatternSelect();
   populateFilters();
   renderCourses();
   renderBubbles();
+  renderShortcuts();
 }
 initApp();
 </script>
