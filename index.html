@@ -413,15 +413,9 @@ let hiddenBuiltinShortcuts = loadJSON(LS_HIDDEN_SHORTCUTS, []);
 
 async function fetchSupabaseData(){
   try {
-    const [resCourses, resShortcuts, resBubbles, resPatterns, resSettings] = await Promise.all([
-      supabaseClient.from('courses').select('*'),
-      supabaseClient.from('shortcuts').select('*'),
-      supabaseClient.from('bubbles').select('*'),
-      supabaseClient.from('patterns').select('*'),
-      supabaseClient.from('settings').select('*').eq('id', 1).single()
-    ]);
-
-    if(resCourses.data){
+    const resCourses = await supabaseClient.from('courses').select('*');
+    if(resCourses.error) console.error("Erreur courses:", resCourses.error.message);
+    else if(resCourses.data){
       dbCourses = resCourses.data.map(row => ({
         id: row.id,
         name: row.name,
@@ -432,7 +426,10 @@ async function fetchSupabaseData(){
         isBuiltin: false
       }));
     }
-    if(resShortcuts.data){
+
+    const resShortcuts = await supabaseClient.from('shortcuts').select('*');
+    if(resShortcuts.error) console.error("Erreur shortcuts:", resShortcuts.error.message);
+    else if(resShortcuts.data){
       dbShortcuts = resShortcuts.data.map(row => ({
         id: row.id,
         name: row.name,
@@ -441,7 +438,10 @@ async function fetchSupabaseData(){
         isBuiltin: false
       }));
     }
-    if(resBubbles.data){
+
+    const resBubbles = await supabaseClient.from('bubbles').select('*');
+    if(resBubbles.error) console.error("Erreur bubbles:", resBubbles.error.message);
+    else if(resBubbles.data){
       dbBubbles = resBubbles.data.map(row => ({
         id: row.id,
         icon: row.icon || '📘',
@@ -450,19 +450,24 @@ async function fetchSupabaseData(){
         isBuiltin: false
       }));
     }
-    if(resPatterns.data){
+
+    const resPatterns = await supabaseClient.from('patterns').select('*');
+    if(resPatterns.error) console.error("Erreur patterns:", resPatterns.error.message);
+    else if(resPatterns.data){
       dbPatterns = resPatterns.data.map(row => ({
         id: row.id,
         name: row.name,
         prefix: row.prefix
       }));
     }
+
+    const resSettings = await supabaseClient.from('settings').select('*').eq('id', 1).single();
     if(resSettings.data && resSettings.data.theme){
       dbSettings.theme = resSettings.data.theme;
       applyTheme(dbSettings.theme);
     }
   } catch(e) {
-    console.error("Erreur chargement Supabase:", e);
+    console.error("Erreur générale chargement Supabase:", e);
   }
 }
 
@@ -479,46 +484,8 @@ async function deleteCourse(id){
     saveJSON(LS_HIDDEN_COURSES, hiddenBuiltinCourses);
   } else {
     const { error } = await supabaseClient.from('courses').delete().eq('id', id);
-    if(error){ alert("Erreur lors de la suppression sur Supabase"); return; }
+    if(error){ alert("Erreur lors de la suppression sur Supabase : " + error.message); return; }
     dbCourses = dbCourses.filter(c => c.id !== id);
-  }
-}
-
-async function upsertCourse(course){
-  if(course.isBuiltin){
-    hiddenBuiltinCourses.push(course.id);
-    saveJSON(LS_HIDDEN_COURSES, hiddenBuiltinCourses);
-    
-    const newEntry = {
-      name: course.name,
-      url: course.url,
-      matiere: course.matiere,
-      professeur: course.professeur,
-      added_at: new Date().toISOString()
-    };
-    const { data, error } = await supabaseClient.from('courses').insert([newEntry]).select();
-    if(!error && data && data[0]){
-      dbCourses.push({
-        id: data[0].id,
-        name: data[0].name,
-        url: data[0].url,
-        matiere: data[0].matiere || '',
-        professeur: data[0].professeur || '',
-        addedAt: data[0].added_at,
-        isBuiltin: false
-      });
-    }
-  } else {
-    const { error } = await supabaseClient.from('courses').update({
-      name: course.name,
-      url: course.url,
-      matiere: course.matiere,
-      professeur: course.professeur
-    }).eq('id', course.id);
-    
-    if(error){ alert("Erreur lors de la mise à jour sur Supabase"); return; }
-    const idx = dbCourses.findIndex(c => c.id === course.id);
-    if(idx >= 0) dbCourses[idx] = course;
   }
 }
 
@@ -547,10 +514,9 @@ function renderPatternsList(){
     btn.addEventListener('click', async ()=>{
       const id = btn.dataset.id;
       const { error } = await supabaseClient.from('patterns').delete().eq('id', id);
-      if(!error){
-        dbPatterns = dbPatterns.filter(p=>p.id!==id);
-        renderPatternsList(); renderPatternSelect();
-      }
+      if(error){ alert("Erreur suppression pattern : " + error.message); return; }
+      dbPatterns = dbPatterns.filter(p=>p.id!==id);
+      renderPatternsList(); renderPatternSelect();
     });
   });
 }
@@ -566,7 +532,8 @@ document.getElementById('pat-save').addEventListener('click', async ()=>{
   if(!name || !prefix){ alert('Merci de renseigner un nom et un préfixe.'); return; }
   
   const { data, error } = await supabaseClient.from('patterns').insert([{ name, prefix }]).select();
-  if(!error && data && data[0]){
+  if(error){ alert("Erreur ajout pattern : " + error.message); return; }
+  if(data && data[0]){
     dbPatterns.push({ id: data[0].id, name: data[0].name, prefix: data[0].prefix });
     document.getElementById('pat-name').value = '';
     document.getElementById('pat-prefix').value = '';
@@ -606,7 +573,7 @@ async function deleteShortcut(id){
     saveJSON(LS_HIDDEN_SHORTCUTS, hiddenBuiltinShortcuts);
   }else{
     const { error } = await supabaseClient.from('shortcuts').delete().eq('id', id);
-    if(error){ alert("Erreur lors de la suppression sur Supabase"); return; }
+    if(error){ alert("Erreur suppression raccourci : " + error.message); return; }
     dbShortcuts = dbShortcuts.filter(s=>s.id!==id);
   }
 }
@@ -614,7 +581,8 @@ async function addShortcut(sc){
   const { data, error } = await supabaseClient.from('shortcuts').insert([{
     name: sc.name, icon: sc.icon, url: sc.url
   }]).select();
-  if(!error && data && data[0]){
+  if(error){ alert("Erreur ajout raccourci : " + error.message); return; }
+  if(data && data[0]){
     dbShortcuts.push({
       id: data[0].id,
       name: data[0].name,
@@ -630,14 +598,15 @@ function getAllBubbles(){
 }
 async function deleteBubble(id){
   const { error } = await supabaseClient.from('bubbles').delete().eq('id', id);
-  if(error){ alert("Erreur lors de la suppression sur Supabase"); return; }
+  if(error){ alert("Erreur suppression bulle : " + error.message); return; }
   dbBubbles = dbBubbles.filter(x=>x.id!==id);
 }
 async function addBubble(b){
   const { data, error } = await supabaseClient.from('bubbles').insert([{
     icon: b.icon, matiere: b.matiere, professeur: b.professeur
   }]).select();
-  if(!error && data && data[0]){
+  if(error){ alert("Erreur ajout bulle : " + error.message); return; }
+  if(data && data[0]){
     dbBubbles.push({
       id: data[0].id,
       icon: data[0].icon,
@@ -888,7 +857,16 @@ function renderCourses(){
       const matiere = card.querySelector('.edit-matiere').value.trim();
       const professeur = card.querySelector('.edit-prof').value.trim();
       if(!name || !url) return;
-      await upsertCourse({...original, name, url, matiere, professeur});
+      
+      const { error } = await supabaseClient.from('courses').update({
+        name, url, matiere, professeur
+      }).eq('id', id);
+      if(error){ alert("Erreur mise à jour cours : " + error.message); return; }
+
+      const idx = dbCourses.findIndex(c => c.id === id);
+      if(idx >= 0){
+        dbCourses[idx] = {...dbCourses[idx], name, url, matiere, professeur};
+      }
       editingId = null;
       populateFilters();
       renderCourses();
