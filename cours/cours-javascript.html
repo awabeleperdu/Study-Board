@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript — Cours interactif BTS CIEL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0d12; --panel:#11161d; --panel-2:#161c25; --border:#232b37;
+  --text:#d5dbe3; --text-dim:#7c8798; --amber:#e3b341; --green:#7ee787;
+  --red:#ff7b72; --blue:#58a6ff; --purple:#c9a6ff;
+  --mono:'JetBrains Mono', ui-monospace, monospace; --sans:'Inter', system-ui, sans-serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;}
+::selection{background:var(--amber);color:#0a0d12;}
+
+header.topbar{position:sticky;top:0;z-index:50;background:rgba(10,13,18,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+.topbar-inner{max-width:1100px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.brand{font-family:var(--mono);font-weight:700;font-size:1.05rem;color:var(--text);display:flex;align-items:center;gap:8px;}
+.brand .dot{color:var(--amber);}
+nav.tabs{display:flex;gap:4px;flex-wrap:wrap;}
+nav.tabs button{font-family:var(--mono);font-size:.82rem;background:none;border:1px solid transparent;color:var(--text-dim);padding:7px 12px;border-radius:6px;cursor:pointer;transition:.15s;}
+nav.tabs button:hover{color:var(--text);border-color:var(--border);}
+nav.tabs button.active{color:var(--bg);background:var(--amber);font-weight:600;}
+
+main{max-width:1100px;margin:0 auto;padding:32px 20px 80px;}
+section.page{display:none;animation:fade .25s ease;}
+section.page.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+h1{font-size:1.9rem;margin:0 0 6px;color:#fff;letter-spacing:-.01em;}
+h2{font-size:1.35rem;margin:40px 0 14px;color:#fff;border-bottom:1px solid var(--border);padding-bottom:10px;}
+h2:first-of-type{margin-top:0;}
+h3{font-size:1.05rem;color:var(--amber);margin:24px 0 8px;}
+p{color:var(--text);}
+.subtitle{color:var(--text-dim);font-size:1rem;margin-bottom:28px;}
+code, .mono{font-family:var(--mono);}
+code{background:var(--panel-2);border:1px solid var(--border);padding:1px 6px;border-radius:4px;font-size:.88em;color:var(--green);}
+
+pre.code{background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:.85rem;line-height:1.65;color:#c9d1d9;margin:10px 0 18px;}
+pre.code .c1{color:var(--text-dim);}
+
+.box{border-left:3px solid;border-radius:6px;padding:12px 16px;margin:16px 0;background:var(--panel);}
+.box-retenir{border-color:var(--green);}
+.box-attention{border-color:var(--red);}
+.box-python{border-color:var(--blue);}
+.box-title{font-family:var(--mono);font-weight:700;font-size:.78rem;letter-spacing:.03em;margin-bottom:4px;}
+.box-retenir .box-title{color:var(--green);}
+.box-attention .box-title{color:var(--red);}
+.box-python .box-title{color:var(--blue);}
+
+.toc-box{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin:0 0 30px;}
+.toc-title{font-family:var(--mono);font-size:.75rem;color:var(--text-dim);letter-spacing:.03em;margin-bottom:10px;}
+.toc-box a{display:inline-block;color:var(--blue);text-decoration:none;font-size:.85rem;margin:0 14px 8px 0;font-family:var(--mono);}
+.toc-box a:hover{text-decoration:underline;}
+.badge-plus{display:inline-block;font-family:var(--mono);font-size:.68rem;font-weight:700;color:var(--purple);border:1px solid #6e4fa3;background:rgba(160,120,255,.1);padding:1px 8px;border-radius:20px;vertical-align:middle;letter-spacing:.02em;}
+.plus-divider{display:flex;align-items:center;gap:12px;margin:44px 0 10px;color:var(--text-dim);font-family:var(--mono);font-size:.78rem;}
+.plus-divider::before,.plus-divider::after{content:"";flex:1;height:1px;background:var(--border);}
+
+.grid{display:grid;gap:16px;}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(230px,1fr));}
+.grid-3{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.card h4{margin:0 0 6px;font-size:.95rem;color:#fff;}
+.card p{margin:0;color:var(--text-dim);font-size:.88rem;}
+
+table{width:100%;border-collapse:collapse;margin:12px 0 20px;font-size:.86rem;}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);}
+th{color:var(--text-dim);font-weight:600;font-family:var(--mono);font-size:.76rem;}
+td code{white-space:nowrap;}
+
+.mindmap{display:flex;flex-direction:column;gap:10px;margin:20px 0;}
+.mm-row{display:flex;gap:10px;flex-wrap:wrap;}
+.mm-node{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:.85rem;}
+.mm-node.root{background:var(--amber);color:#0a0d12;font-weight:700;border:none;}
+
+.accordion{border:1px solid var(--border);border-radius:8px;margin:10px 0;overflow:hidden;background:var(--panel);}
+.acc-head{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;cursor:pointer;font-size:.92rem;color:var(--text);}
+.acc-head:hover{background:var(--panel-2);}
+.acc-head .lvl{font-family:var(--mono);font-size:.72rem;color:var(--amber);border:1px solid var(--amber);padding:1px 7px;border-radius:20px;margin-right:10px;}
+.acc-arrow{transition:.2s;color:var(--text-dim);}
+.accordion.open .acc-arrow{transform:rotate(90deg);}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .3s ease;border-top:1px solid transparent;}
+.accordion.open .acc-body{max-height:1000px;border-top:1px solid var(--border);}
+.acc-body-inner{padding:14px 16px;}
+
+.flash-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;}
+.flash-card{width:100%;max-width:480px;height:220px;perspective:1200px;cursor:pointer;}
+.flash-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;}
+.flash-card.flipped .flash-inner{transform:rotateY(180deg);}
+.flash-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;border:1px solid var(--border);}
+.flash-front{background:var(--panel);}
+.flash-back{background:var(--panel-2);transform:rotateY(180deg);color:var(--green);}
+.flash-face p{font-size:1.05rem;font-family:var(--mono);margin:0;}
+.flash-controls{display:flex;gap:12px;align-items:center;}
+.flash-count{color:var(--text-dim);font-family:var(--mono);font-size:.85rem;}
+
+button.btn{font-family:var(--mono);background:var(--panel-2);border:1px solid var(--border);color:var(--text);padding:9px 16px;border-radius:7px;cursor:pointer;font-size:.85rem;transition:.15s;}
+button.btn:hover{border-color:var(--amber);color:var(--amber);}
+button.btn.primary{background:var(--amber);color:#0a0d12;border:none;font-weight:700;}
+button.btn.primary:hover{opacity:.9;color:#0a0d12;}
+
+.qcm-q{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:14px;}
+.qcm-q p.question{margin:0 0 10px;font-weight:600;color:#fff;}
+.qcm-opt{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;cursor:pointer;margin-bottom:4px;}
+.qcm-opt:hover{background:var(--panel-2);}
+.qcm-opt input{accent-color:var(--amber);}
+.qcm-feedback{display:none;font-size:.85rem;margin-top:8px;padding:8px 10px;border-radius:6px;font-family:var(--mono);}
+.qcm-feedback.ok{background:rgba(126,231,135,.1);color:var(--green);display:block;}
+.qcm-feedback.ko{background:rgba(255,123,114,.1);color:var(--red);display:block;}
+#qcm-score{text-align:center;font-family:var(--mono);font-size:1.3rem;padding:20px;border:1px solid var(--border);border-radius:10px;background:var(--panel);display:none;margin-top:20px;}
+
+/* JS playground */
+.pg-wrap{background:#0d1117;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:20px 0;}
+.pg-col-head{background:var(--panel-2);padding:8px 14px;font-family:var(--mono);font-size:.75rem;color:var(--text-dim);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+#js-editor{width:100%;height:200px;background:#0d1117;color:#c9d1d9;border:none;outline:none;font-family:var(--mono);font-size:.83rem;padding:14px;resize:vertical;line-height:1.6;border-bottom:1px solid var(--border);}
+#dom-target{padding:14px;border-bottom:1px solid var(--border);background:#11161d;min-height:50px;}
+#js-console{height:140px;overflow-y:auto;padding:12px 14px;font-family:var(--mono);font-size:.8rem;background:#0d1117;}
+#js-console .log-line{color:#c9d1d9;padding:2px 0;border-bottom:1px solid rgba(255,255,255,.03);}
+#js-console .log-error{color:var(--red);}
+.pg-presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+
+.res-link{display:block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:10px;text-decoration:none;color:var(--text);transition:.15s;}
+.res-link:hover{border-color:var(--amber);}
+.res-link .res-title{color:#fff;font-weight:600;font-size:.95rem;}
+.res-link .res-desc{color:var(--text-dim);font-size:.83rem;margin-top:3px;}
+.res-link .res-url{font-family:var(--mono);color:var(--blue);font-size:.78rem;margin-top:4px;}
+
+footer{text-align:center;color:var(--text-dim);font-size:.8rem;padding:30px 20px;font-family:var(--mono);}
+
+@media(max-width:640px){
+  .topbar-inner{flex-direction:column;align-items:flex-start;}
+  nav.tabs{width:100%;overflow-x:auto;}
+  h1{font-size:1.5rem;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">JS<span class="dot">()</span></div>
+    <nav class="tabs">
+      <button data-page="accueil" class="active">Accueil</button>
+      <button data-page="cours">Le Cours</button>
+      <button data-page="exercices">Exercices</button>
+      <button data-page="revisions">Révisions</button>
+      <button data-page="ressources">Ressources</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- ================= ACCUEIL ================= -->
+<section class="page active" id="accueil">
+  <h1>JavaScript</h1>
+  <p class="subtitle">Rendre une page web interactive : variables, fonctions, DOM, événements, asynchrone — niveau BTS CIEL, avec des repères pour ceux qui viennent de Python.</p>
+
+  <div class="box box-retenir">
+    <div class="box-title">À RETENIR</div>
+    JavaScript est le langage qui s'exécute <strong>dans le navigateur</strong> (contrairement à Python côté serveur) : il donne vie à une page HTML/CSS statique en réagissant aux actions de l'utilisateur (clics, saisies) et en modifiant la page sans la recharger.
+  </div>
+
+  <div class="box box-python">
+    <div class="box-title">🐍 SI TU VIENS DE PYTHON</div>
+    Tu connais déjà les concepts (variables, fonctions, boucles, POO, appels d'API) : ce cours va surtout t'apprendre une <strong>nouvelle syntaxe</strong> et quelques mécanismes propres à JS qui n'existent pas en Python (le DOM, l'asynchrone omniprésent, <code>this</code>). Des encadrés bleus 🐍 feront le pont avec Python tout au long du cours.
+  </div>
+
+  <h2>Objectifs du cours</h2>
+  <div class="grid grid-3">
+    <div class="card"><h4>Maîtriser la syntaxe de base</h4><p>Variables, types, opérateurs, structures de contrôle.</p></div>
+    <div class="card"><h4>Écrire des fonctions</h4><p>Déclarations, fonctions fléchées, portée.</p></div>
+    <div class="card"><h4>Manipuler tableaux et objets</h4><p>Les deux structures de données centrales de JS.</p></div>
+    <div class="card"><h4>Modifier une page en direct</h4><p>Le DOM et les événements utilisateur.</p></div>
+    <div class="card"><h4>Comprendre l'asynchrone</h4><p>Promises, async/await, appels d'API avec fetch.</p></div>
+    <div class="card"><h4>Éviter les pièges classiques</h4><p>== vs ===, portée de var, this, hoisting.</p></div>
+  </div>
+
+  <h2>Prérequis</h2>
+  <ul>
+    <li>Bases du HTML (balises, structure d'une page)</li>
+    <li>Aucune expérience préalable de JavaScript n'est nécessaire</li>
+    <li>Une bonne base de programmation (Python, par exemple) aide énormément — ce cours s'appuie dessus</li>
+  </ul>
+
+  <h2>Carte mentale du cours</h2>
+  <div class="mindmap">
+    <div class="mm-row"><div class="mm-node root">JavaScript</div></div>
+    <div class="mm-row">
+      <div class="mm-node">Bases du langage<br><span style="color:var(--text-dim);font-size:.78rem">variables, types, opérateurs</span></div>
+      <div class="mm-node">Structures de contrôle<br><span style="color:var(--text-dim);font-size:.78rem">if, boucles, switch</span></div>
+      <div class="mm-node">Fonctions<br><span style="color:var(--text-dim);font-size:.78rem">classiques, fléchées, portée</span></div>
+    </div>
+    <div class="mm-row">
+      <div class="mm-node">Tableaux<br><span style="color:var(--text-dim);font-size:.78rem">map, filter, forEach</span></div>
+      <div class="mm-node">Objets<br><span style="color:var(--text-dim);font-size:.78rem">propriétés, méthodes, this</span></div>
+      <div class="mm-node">DOM & événements<br><span style="color:var(--text-dim);font-size:.78rem">querySelector, addEventListener</span></div>
+    </div>
+    <div class="mm-row">
+      <div class="mm-node">Asynchrone<br><span style="color:var(--text-dim);font-size:.78rem">Promises, async/await, fetch</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COURS ================= -->
+<section class="page" id="cours">
+  <h1>Le cours structuré</h1>
+  <p class="subtitle">Programme BTS CIEL couvert intégralement (sections 1 à 9), puis des approfondissements signalés <span class="badge-plus">+ hors programme</span> (sections 10 à 13). Prends ton temps sur chaque section : mieux vaut bien comprendre 9 sections que survoler 13.</p>
+
+  <div class="toc-box">
+    <div class="toc-title">Sommaire</div>
+    <a href="#c1">1. Introduction & où écrire du JS</a>
+    <a href="#c2">2. Variables et types</a>
+    <a href="#c3">3. Opérateurs et structures de contrôle</a>
+    <a href="#c4">4. Fonctions</a>
+    <a href="#c5">5. Tableaux (Array)</a>
+    <a href="#c6">6. Objets</a>
+    <a href="#c7">7. Le DOM : lire et modifier la page</a>
+    <a href="#c8">8. Les événements</a>
+    <a href="#c9">9. L'asynchrone : Promises, async/await, fetch</a>
+    <a href="#c10">10. Closures et portée lexicale <span class="badge-plus">+</span></a>
+    <a href="#c11">11. this en profondeur <span class="badge-plus">+</span></a>
+    <a href="#c12">12. Programmation orientée objet en JS <span class="badge-plus">+</span></a>
+    <a href="#c13">13. Consommer une API JSON en pratique <span class="badge-plus">+</span></a>
+  </div>
+
+  <h2 id="c1">1. Introduction : à quoi sert JavaScript et où l'écrire</h2>
+  <p>HTML structure une page, CSS l'habille, <strong>JavaScript la rend interactive</strong> : réagir à un clic, valider un formulaire avant envoi, charger des données sans recharger la page, animer des éléments... C'est le seul langage compris <strong>nativement</strong> par tous les navigateurs.</p>
+  <pre class="code">&lt;script&gt;
+  console.log("Bonjour depuis JavaScript !");
+&lt;/script&gt;
+
+&lt;script src="script.js" defer&gt;&lt;/script&gt; <span class="c1">// fichier externe, méthode recommandée</span></pre>
+  <div class="box box-retenir">
+    <div class="box-title">À RETENIR</div>
+    <code>console.log(...)</code> est ton meilleur ami pour débuter : il affiche une valeur dans la <strong>console du navigateur</strong> (touche F12 puis onglet "Console"), sans interrompre la page comme le ferait une alerte. Prends l'habitude de l'ouvrir en permanence pendant que tu codes.
+  </div>
+  <div class="box box-python">
+    <div class="box-title">🐍 SI TU VIENS DE PYTHON</div>
+    <code>console.log()</code> ≈ <code>print()</code>. La grande différence : ton code Python s'exécute dans un terminal, ton code JS s'exécute <strong>dans le navigateur</strong>, avec accès à la page (le DOM) que Python n'a pas.
+  </div>
+
+  <h2 id="c2">2. Variables et types</h2>
+  <pre class="code">let age = 17;              <span class="c1">// variable qui peut changer de valeur</span>
+const nom = "Amir";        <span class="c1">// constante : ne peut plus être réaffectée</span>
+var ancien = "à éviter";   <span class="c1">// ancienne syntaxe, portée différente (voir attention)</span></pre>
+  <table>
+    <tr><th>Mot-clé</th><th>Usage</th></tr>
+    <tr><td><code>let</code></td><td>Variable modifiable — <strong>à utiliser par défaut</strong></td></tr>
+    <tr><td><code>const</code></td><td>Valeur qui ne sera jamais réassignée — à préférer dès que possible, pour la lisibilité</td></tr>
+    <tr><td><code>var</code></td><td>Ancienne syntaxe (avant 2015), à <strong>éviter</strong> : sa portée fonctionne différemment et cause des bugs (voir encadré ci-dessous)</td></tr>
+  </table>
+  <table>
+    <tr><th>Type</th><th>Exemple</th></tr>
+    <tr><td>Nombre (un seul type, pas de distinction int/float)</td><td><code>let n = 42; let pi = 3.14;</code></td></tr>
+    <tr><td>Chaîne de caractères</td><td><code>let s = "bonjour"; let s2 = 'aussi valide';</code></td></tr>
+    <tr><td>Booléen</td><td><code>let actif = true;</code></td></tr>
+    <tr><td>Tableau</td><td><code>let notes = [12, 15, 8];</code></td></tr>
+    <tr><td>Objet</td><td><code>let personne = { nom: "Amir", age: 17 };</code></td></tr>
+    <tr><td><code>undefined</code></td><td>Une variable déclarée mais jamais initialisée</td></tr>
+    <tr><td><code>null</code></td><td>Une absence de valeur, définie <strong>volontairement</strong> par le développeur</td></tr>
+  </table>
+  <div class="box box-attention">
+    <div class="box-title">ATTENTION — piège classique : var vs let</div>
+    <code>var</code> a une portée de <strong>fonction</strong>, alors que <code>let</code>/<code>const</code> ont une portée de <strong>bloc</strong> (comme en Python, une variable dans un <code>if</code> ou un <code>for</code> avec <code>let</code> n'existe pas en dehors). Avec <code>var</code>, une variable déclarée dans un <code>if</code> "fuit" en dehors du bloc — source de bugs très courante chez les débutants. <strong>Solution : n'utilisez jamais var.</strong>
+  </div>
+  <pre class="code">if (true) {
+  let x = 10;
+  var y = 20;
+}
+console.log(y); <span class="c1">// -&gt; 20, fonctionne (surprenant !)</span>
+console.log(x); <span class="c1">// -&gt; Erreur : x is not defined</span></pre>
+  <div class="box box-attention">
+    <div class="box-title">ATTENTION — undefined vs null</div>
+    <code>undefined</code> = "cette variable n'a jamais reçu de valeur" (souvent un oubli/bug). <code>null</code> = "j'ai volontairement dit qu'il n'y a pas de valeur ici". En Python, il n'existe qu'un seul concept (<code>None</code>) qui correspond aux deux à la fois — c'est une vraie différence à intégrer.
+  </div>
+  <div class="box box-python">
+    <div class="box-title">🐍 SI TU VIENS DE PYTHON</div>
+    Pas de distinction <code>int</code>/<code>float</code> en JS : tout nombre est du type <code>number</code>. Les chaînes se déclarent avec <code>"..."</code> ou <code>'...'</code>, indifféremment (contrairement à Python où c'est aussi le cas, donc rien de neuf ici). Chaque instruction se termine par un point-virgule <code>;</code> (facultatif techniquement, mais fortement recommandé).
+  </div>
+
+  <h2 id="c3">3. Opérateurs et structures de contrôle</h2>
+  <pre class="code">if (note &gt;= 10) {
+  console.log("Admis");
+} else if (note &gt;= 8) {
+  console.log("Rattrapage");
+} else {
+  console.log("Recalé");
+}
+
+for (let i = 0; i &lt; 5; i++) {
+  console.log(i);
+}
+
+let notes = [12, 15, 8];
+for (const n of notes) {       <span class="c1">// parcourt les VALEURS d'un tableau</span>
+  console.log(n);
+}
+
+let i = 0;
+while (i &lt; 3) {
+  console.log(i);
+  i++;
+}</pre>
+  <table>
+    <tr><th>Opérateur</th><th>Signification</th></tr>
+    <tr><td><code>==</code></td><td>Égalité <strong>avec conversion de type</strong> automatique — à éviter</td></tr>
+    <tr><td><code>===</code></td><td>Égalité <strong>stricte</strong>, sans conversion — <strong>à utiliser systématiquement</strong></td></tr>
+    <tr><td><code>&amp;&amp; / || / !</code></td><td>ET / OU / NON logiques</td></tr>
+    <tr><td><code>+=, -=, ++, --</code></td><td>Affectations et incrémentations composées, comme en Python (sauf ++ / -- qui n'existent pas en Python)</td></tr>
+  </table>
+  <div class="box box-attention">
+    <div class="box-title">ATTENTION — le piège n°1 de JavaScript : == vs ===</div>
+    <code>"5" == 5</code> vaut <code>true</code> (JS convertit la chaîne en nombre avant de comparer), alors que <code>"5" === 5</code> vaut <code>false</code> (types différents, donc jamais égaux). Cette conversion automatique de <code>==</code> produit des résultats surprenants (<code>0 == false</code> est <code>true</code>, <code>"" == false</code> aussi). <strong>Prenez l'habitude d'utiliser <code>===</code> et <code>!==</code> partout, sans exception.</strong>
+  </div>
+
+  <h2 id="c4">4. Fonctions</h2>
+  <pre class="code"><span class="c1">// déclaration classique</span>
+function addition(a, b) {
+  return a + b;
+}
+
+<span class="c1">// expression de fonction</span>
+const soustraction = function(a, b) {
+  return a - b;
+};
+
+<span class="c1">// fonction fléchée (arrow function) — syntaxe moderne, très utilisée</span>
+const multiplication = (a, b) =&gt; {
+  return a * b;
+};
+
+<span class="c1">// fonction fléchée courte : une seule expression, retour implicite</span>
+const carre = x =&gt; x * x;
+
+addition(3, 4);       <span class="c1">// -&gt; 7</span>
+carre(5);              <span class="c1">// -&gt; 25</span></pre>
+  <table>
+    <tr><th>Syntaxe</th><th>Quand l'utiliser</th></tr>
+    <tr><td>Déclaration <code>function nom() {}</code></td><td>Fonctions "utilitaires" classiques, hissées en haut du fichier (voir hoisting, section 10)</td></tr>
+    <tr><td>Fléchée <code>const f = () =&gt; {}</code></td><td>Très utilisée pour des fonctions courtes, callbacks, et dans les méthodes de tableau (section 5)</td></tr>
+  </table>
+  <div class="box box-python">
+    <div class="box-title">🐍 SI TU VIENS DE PYTHON</div>
+    <code>const carre = x =&gt; x * x;</code> ressemble à une lambda Python (<code>carre = lambda x: x*x</code>), mais en JS les fonctions fléchées sont utilisées <strong>partout</strong>, pas seulement pour des cas courts — elles remplacent souvent <code>function</code> classique.
+  </div>
+  <div class="box box-attention">
+    <div class="box-title">ATTENTION</div>
+    Une fonction déclarée avec <code>function</code> peut être appelée <strong>avant</strong> sa définition dans le fichier (hoisting). Une fonction fléchée stockée dans une <code>const</code> ne le peut pas — elle doit être définie avant d'être utilisée, comme en Python.
+  </div>
+
+  <h2 id="c5">5. Tableaux (Array) et leurs méthodes</h2>
+  <pre class="code">let notes = [12, 15, 8, 17];
+
+notes.push(10);            <span class="c1">// ajoute à la fin -&gt; [12, 15, 8, 17, 10]</span>
+notes.length;               <span class="c1">// -&gt; 5</span>
+notes[0];                   <span class="c1">// -&gt; 12 (indexation à partir de 0, comme Python)</span>
+
+<span class="c1">// forEach : exécute une fonction pour chaque élément (pas de retour)</span>
+notes.forEach(n =&gt; console.log(n));
+
+<span class="c1">// map : transforme chaque élément, renvoie un NOUVEAU tableau</span>
+const doublees = notes.map(n =&gt; n * 2);
+
+<span class="c1">// filter : garde seulement les éléments qui vérifient une condition</span>
+const bonnes = notes.filter(n =&gt; n &gt;= 10);
+
+<span class="c1">// find : renvoie le PREMIER élément qui vérifie une condition (ou undefined)</span>
+const premiereMauvaise = notes.find(n =&gt; n &lt; 10);
+
+<span class="c1">// reduce : accumule les éléments en une seule valeur</span>
+const somme = notes.reduce((acc, n) =&gt; acc + n, 0);</pre>
+  <table>
+    <tr><th>Méthode</th><th>Équivalent Python approximatif</th></tr>
+    <tr><td><code>map</code></td><td>List comprehension <code>[f(x) for x in liste]</code></td></tr>
+    <tr><td><code>filter</code></td><td><code>[x for x in liste if condition]</code></td></tr>
+    <tr><td><code>reduce</code></td><td><code>functools.reduce</code></td></tr>
+    <tr><td><code>forEach</code></td><td><code>for x in liste: ...</code> (sans valeur de retour)</td></tr>
+  </table>
+  <div class="box box-retenir">
+    <div class="box-title">À RETENIR</div>
+    <code>map</code> et <code>filter</code> renvoient toujours un <strong>nouveau</strong> tableau, sans modifier l'original — un réflexe à prendre pour éviter des effets de bord inattendus.
+  </div>
+
+  <h2 id="c6">6. Objets</h2>
+  <pre class="code">const etudiant = {
+  nom: "Amir",
+  age: 17,
+  matieres: ["Maths", "NSI"],
+  seFesenter() {                 <span class="c1">// méthode : fonction dans un objet</span>
+    return `Je m'appelle ${this.nom} et j'ai ${this.age} ans.`;
+  }
+};
+
+etudiant.nom;                 <span class="c1">// -&gt; "Amir" (accès par point)</span>
+etudiant["age"];              <span class="c1">// -&gt; 17 (accès par crochets, utile si clé dynamique)</span>
+etudiant.ville = "Paris";     <span class="c1">// ajoute une nouvelle propriété</span>
+etudiant.seFesenter();        <span class="c1">// -&gt; "Je m'appelle Amir et j'ai 17 ans."</span>
+
+for (const cle in etudiant) {  <span class="c1">// parcourt les CLÉS d'un objet</span>
+  console.log(cle, etudiant[cle]);
+}</pre>
+  <div class="box box-python">
+    <div class="box-title">🐍 SI TU VIENS DE PYTHON</div>
+    Un objet JS ressemble beaucoup à un <strong>dictionnaire Python</strong> (<code>{"nom": "Amir", "age": 17}</code>), avec en plus la possibilité d'y mettre des méthodes directement, façon mini-classe. <code>for...in</code> sur un objet ≈ <code>for cle in dictionnaire:</code>, alors que <code>for...of</code> sur un tableau ≈ <code>for element in liste:</code> — ne confondez pas les deux (section 3 et 5).
+  </div>
+  <div class="box box-attention">
+    <div class="box-title">ATTENTION — this dans une méthode</div>
+    À l'intérieur d'une méthode d'objet, <code>this</code> désigne l'objet lui-même — un peu comme <code>self</code> en Python, mais <code>this</code> est <strong>implicite</strong> (jamais un paramètre explicite de la fonction). Ce comportement se complique avec les fonctions fléchées (voir section 11, hors programme).
+  </div>
+
+  <h2 id="c7">7. Le DOM : lire et modifier la page</h2>
+  <p>Le <strong>DOM</strong> (Document Object Model) est la représentation de la page HTML sous forme d'objets manipulables en JavaScript.</p>
+  <pre class="code">const titre = document.querySelector("h1");        <span class="c1">// premier élément correspondant</span>
+const tousLesP = document.querySelectorAll("p");    <span class="c1">// TOUS les éléments correspondants (liste)</span>
+const parId = document.getElementById("mon-id");
+
+titre.textContent = "Nouveau titre";     <span class="c1">// change le texte (sûr)</span>
+titre.innerHTML = "&lt;em&gt;Titre&lt;/em&gt;";     <span class="c1">// change le HTML interne (attention aux failles XSS avec du contenu utilisateur)</span>
+titre.style.color = "red";               <span class="c1">// modifie un style CSS directement</span>
+titre.classList.add("actif");            <span class="c1">// ajoute une classe CSS</span>
+
+const nouveauP = document.createElement("p");
+nouveauP.textContent = "Élément créé dynamiquement";
+document.body.appendChild(nouveauP);      <span class="c1">// l'ajoute réellement à la page</span></pre>
+  <table>
+    <tr><th>Méthode</th><th>Rôle</th></tr>
+    <tr><td><code>querySelector(sel)</code></td><td>Renvoie le premier élément qui correspond au sélecteur CSS <code>sel</code></td></tr>
+    <tr><td><code>querySelectorAll(sel)</code></td><td>Renvoie TOUS les éléments correspondants</td></tr>
+    <tr><td><code>textContent</code></td><td>Lit ou change le texte affiché</td></tr>
+    <tr><td><code>createElement</code> + <code>appendChild</code></td><td>Crée un nouvel élément puis l'insère dans la page</td></tr>
+  </table>
+  <div class="box box-retenir">
+    <div class="box-title">À RETENIR</div>
+    Le sélecteur passé à <code>querySelector</code> est un <strong>sélecteur CSS</strong> classique : <code>"#mon-id"</code>, <code>".ma-classe"</code>, <code>"div p"</code>... Si tu connais les sélecteurs CSS, tu sais déjà cibler des éléments en JS.
+  </div>
+
+  <h2 id="c8">8. Les événements</h2>
+  <pre class="code">const bouton = document.querySelector("#mon-bouton");
+
+bouton.addEventListener("click", function() {
+  console.log("Cliqué !");
+});
+
+<span class="c1">// avec une fonction fléchée, souvent plus court</span>
+bouton.addEventListener("click", () =&gt; {
+  console.log("Cliqué aussi !");
+});
+
+<span class="c1">// l'objet "event" donne des infos sur l'événement</span>
+document.querySelector("form").addEventListener("submit", (event) =&gt; {
+  event.preventDefault();  <span class="c1">// empêche le rechargement de page par défaut</span>
+  console.log("Formulaire intercepté avant envoi");
+});</pre>
+  <table>
+    <tr><th>Événement</th><th>Se déclenche quand...</th></tr>
+    <tr><td><code>click</code></td><td>L'utilisateur clique sur l'élément</td></tr>
+    <tr><td><code>input</code></td><td>La valeur d'un champ change (à chaque frappe)</td></tr>
+    <tr><td><code>submit</code></td><td>Un formulaire est envoyé</td></tr>
+    <tr><td><code>keydown</code> / <code>keyup</code></td><td>Une touche du clavier est pressée / relâchée</td></tr>
+    <tr><td><code>DOMContentLoaded</code></td><td>La page HTML a fini de se charger (sur <code>document</code>)</td></tr>
+  </table>
+  <div class="box box-attention">
+    <div class="box-title">ATTENTION</div>
+    <code>event.preventDefault()</code> est indispensable pour intercepter un formulaire côté JS sans que le navigateur ne recharge immédiatement la page (comportement par défaut d'un <code>submit</code>).
+  </div>
+
+  <h2 id="c9">9. L'asynchrone : Promises, async/await, fetch</h2>
+  <p>Beaucoup d'opérations en JS prennent du temps (charger une image, interroger un serveur) sans <strong>bloquer</strong> le reste de la page pendant l'attente — c'est le principe de l'<strong>asynchrone</strong>, omniprésent en JS.</p>
+  <pre class="code"><span class="c1">// fetch renvoie une PROMISE (une valeur "pas encore prête")</span>
+fetch("https://jsonplaceholder.typicode.com/users/1")
+  .then(reponse =&gt; reponse.json())   <span class="c1">// convertit la réponse en objet JS</span>
+  .then(donnees =&gt; console.log(donnees))
+  .catch(erreur =&gt; console.error("Erreur :", erreur));
+
+<span class="c1">// même chose avec async/await, plus lisible (syntaxe recommandée)</span>
+async function chargerUtilisateur() {
+  try {
+    const reponse = await fetch("https://jsonplaceholder.typicode.com/users/1");
+    const donnees = await reponse.json();
+    console.log(donnees);
+  } catch (erreur) {
+    console.error("Erreur :", erreur);
+  }
+}
+chargerUtilisateur();</pre>
+  <table>
+    <tr><th>Concept</th><th>Explication</th></tr>
+    <tr><td>Promise</td><td>Objet représentant une valeur qui sera disponible plus tard (succès ou échec)</td></tr>
+    <tr><td><code>.then()</code></td><td>Exécuté quand la Promise réussit</td></tr>
+    <tr><td><code>.catch()</code></td><td>Exécuté si la Promise échoue (erreur réseau, etc.)</td></tr>
+    <tr><td><code>async</code></td><td>Marque une fonction comme pouvant utiliser <code>await</code> à l'intérieur</td></tr>
+    <tr><td><code>await</code></td><td>"Attend" qu'une Promise se résolve avant de continuer, comme un appel classique</td></tr>
+  </table>
+  <div class="box box-python">
+    <div class="box-title">🐍 SI TU VIENS DE PYTHON</div>
+    <code>async</code>/<code>await</code> existe aussi en Python (<code>async def</code>, <code>await</code>) avec exactement la même logique. Si tu as fait des appels d'API en Python avec <code>requests</code> (synchrone) : <code>fetch</code> + <code>await</code> en JS te donne un résultat équivalent, mais l'asynchrone est <strong>la norme</strong> en JS (pas une option comme en Python), car JavaScript est mono-thread et ne doit jamais bloquer l'interface.
+  </div>
+  <div class="box box-attention">
+    <div class="box-title">ATTENTION — piège classique</div>
+    <code>await</code> ne peut être utilisé qu'à l'intérieur d'une fonction marquée <code>async</code>. Oublier <code>async</code> devant la fonction est une erreur très fréquente chez les débutants (le code refuse de compiler avec un message peu clair au premier abord).
+  </div>
+
+  <h3>🧪 Bac à sable JavaScript : écrivez et exécutez du code en direct</h3>
+  <p style="color:var(--text-dim);font-size:.88rem;">Le code peut manipuler la zone grisée ci-dessous (<code>document.getElementById("dom-target")</code>) et afficher des résultats dans la console juste en dessous.</p>
+  <div class="pg-presets">
+    <button class="btn" id="preset-vars">Variables & types</button>
+    <button class="btn" id="preset-array">Tableaux (map/filter)</button>
+    <button class="btn" id="preset-dom">Manipuler le DOM</button>
+    <button class="btn" id="preset-fetch">Fetch une API</button>
+  </div>
+  <div class="pg-wrap">
+    <div class="pg-col-head">Code JavaScript</div>
+    <textarea id="js-editor" spellcheck="false"></textarea>
+    <div class="pg-col-head">Zone d'affichage (le DOM que ton code peut manipuler)</div>
+    <div id="dom-target">Cette zone est vide au départ...</div>
+    <div class="pg-col-head">
+      <span>Console</span>
+      <button class="btn" id="js-run" style="padding:4px 12px;">▶ Exécuter</button>
+    </div>
+    <div id="js-console"></div>
+  </div>
+
+  <div class="plus-divider"><span>Sections suivantes hors programme BTS — pour approfondir</span></div>
+
+  <h2 id="c10">10. Closures et portée lexicale <span class="badge-plus">+ hors programme</span></h2>
+  <p>Une <strong>closure</strong> (fermeture) est une fonction qui "se souvient" des variables de l'endroit où elle a été créée, même après que cet endroit a fini de s'exécuter.</p>
+  <pre class="code">function creerCompteur() {
+  let compte = 0;
+  return function() {
+    compte++;
+    return compte;
+  };
+}
+
+const compteur = creerCompteur();
+compteur(); <span class="c1">// -&gt; 1</span>
+compteur(); <span class="c1">// -&gt; 2</span>
+compteur(); <span class="c1">// -&gt; 3</span></pre>
+  <div class="box box-retenir">
+    <div class="box-title">À RETENIR</div>
+    La variable <code>compte</code> devrait normalement disparaître à la fin de l'exécution de <code>creerCompteur()</code> — mais la fonction retournée la "garde en mémoire" grâce à la closure. C'est le mécanisme derrière beaucoup de patterns JS avancés (compteurs, gestionnaires d'état, fonctions "fabriques").
+  </div>
+
+  <h2 id="c11">11. <code>this</code> en profondeur <span class="badge-plus">+ hors programme</span></h2>
+  <p>La valeur de <code>this</code> dépend de <strong>comment</strong> une fonction est appelée, pas de où elle est écrite :</p>
+  <pre class="code">const objet = {
+  nom: "Amir",
+  direBonjour: function() {
+    console.log(this.nom); <span class="c1">// -&gt; "Amir" : this = objet, car appelée via objet.direBonjour()</span>
+  },
+  direBonjourFleche: () =&gt; {
+    console.log(this.nom); <span class="c1">// -&gt; undefined : les fonctions fléchées n'ont PAS leur propre this</span>
+  }
+};
+objet.direBonjour();
+objet.direBonjourFleche();</pre>
+  <p>Pour forcer la valeur de <code>this</code> dans un cas précis : <code>fonction.call(contexte)</code>, <code>fonction.apply(contexte, args)</code>, ou <code>fonction.bind(contexte)</code> (renvoie une nouvelle fonction liée définitivement à ce contexte).</p>
+  <div class="box box-attention">
+    <div class="box-title">ATTENTION</div>
+    Les fonctions fléchées n'ont pas leur propre <code>this</code> : elles récupèrent celui du contexte englobant au moment où elles sont <strong>écrites</strong> (portée lexicale). C'est très utile dans un callback (pour garder le <code>this</code> de la méthode englobante), mais problématique si on les utilise comme méthode directe d'un objet.
+  </div>
+
+  <h2 id="c12">12. Programmation orientée objet en JavaScript <span class="badge-plus">+ hors programme</span></h2>
+  <pre class="code">class Etudiant {
+  constructor(nom, age) {
+    this.nom = nom;
+    this.age = age;
+  }
+  seFesenter() {
+    return `Je m'appelle ${this.nom}, j'ai ${this.age} ans.`;
+  }
+}
+
+class EtudiantBTS extends Etudiant {
+  constructor(nom, age, specialite) {
+    super(nom, age);            <span class="c1">// appelle le constructeur parent</span>
+    this.specialite = specialite;
+  }
+  seFesenter() {
+    return super.seFesenter() + ` Spécialité : ${this.specialite}.`;
+  }
+}
+
+const e = new EtudiantBTS("Amir", 17, "CIEL");
+console.log(e.seFesenter());</pre>
+  <div class="box box-python">
+    <div class="box-title">🐍 SI TU VIENS DE PYTHON</div>
+    <code>constructor</code> ≈ <code>__init__</code>. <code>this</code> ≈ <code>self</code>, mais implicite (pas un paramètre explicite de chaque méthode). <code>extends</code> ≈ hériter entre parenthèses (<code>class EtudiantBTS(Etudiant):</code>). <code>super()</code> fonctionne quasiment pareil dans les deux langages.
+  </div>
+
+  <h2 id="c13">13. Consommer une API JSON en pratique <span class="badge-plus">+ hors programme</span></h2>
+  <pre class="code">async function afficherUtilisateurs() {
+  const reponse = await fetch("https://jsonplaceholder.typicode.com/users");
+  const utilisateurs = await reponse.json();
+
+  const conteneur = document.querySelector("#liste-utilisateurs");
+  utilisateurs.forEach(u =&gt; {
+    const li = document.createElement("li");
+    li.textContent = `${u.name} (${u.email})`;
+    conteneur.appendChild(li);
+  });
+}</pre>
+  <p>Ce pattern — <code>fetch</code> + <code>await</code> + parcours avec <code>forEach</code> + création d'éléments DOM — est l'un des plus courants du développement web front-end : récupérer des données d'une API et les afficher dynamiquement dans la page.</p>
+</section>
+
+<!-- ================= EXERCICES ================= -->
+<section class="page" id="exercices">
+  <h1>Exercices d'application</h1>
+  <p class="subtitle">Du basique au cas type examen BTS. Cliquez sur un exercice pour voir l'énoncé, puis dépliez la solution.</p>
+  <div id="exo-list"></div>
+</section>
+
+<!-- ================= REVISIONS ================= -->
+<section class="page" id="revisions">
+  <h1>Révisions interactives</h1>
+  <p class="subtitle">Flashcards pour la mémoire, QCM pour valider vos acquis.</p>
+
+  <h2>📇 Flashcards</h2>
+  <div class="flash-wrap">
+    <div class="flash-card" id="flash-card">
+      <div class="flash-inner">
+        <div class="flash-face flash-front"><p id="flash-front-text"></p></div>
+        <div class="flash-face flash-back"><p id="flash-back-text"></p></div>
+      </div>
+    </div>
+    <div class="flash-controls">
+      <button class="btn" id="flash-prev">← Précédent</button>
+      <span class="flash-count" id="flash-count">1 / 10</span>
+      <button class="btn" id="flash-next">Suivant →</button>
+    </div>
+    <p style="color:var(--text-dim);font-size:.85rem;">Cliquez sur la carte pour la retourner</p>
+  </div>
+
+  <h2>✅ QCM final</h2>
+  <div id="qcm-list"></div>
+  <div style="text-align:center;margin-top:16px;">
+    <button class="btn primary" id="qcm-submit">Valider mes réponses</button>
+  </div>
+  <div id="qcm-score"></div>
+</section>
+
+<!-- ================= RESSOURCES ================= -->
+<section class="page" id="ressources">
+  <h1>Ressources complémentaires</h1>
+  <p class="subtitle">Pour aller plus loin et s'entraîner en continu.</p>
+
+  <h2>Outils interactifs</h2>
+  <a class="res-link" href="https://codepen.io" target="_blank" rel="noopener">
+    <div class="res-title">CodePen</div>
+    <div class="res-desc">Éditeur en ligne HTML/CSS/JS avec aperçu live, idéal pour s'entraîner et voir des exemples réels.</div>
+    <div class="res-url">codepen.io</div>
+  </a>
+  <a class="res-link" href="https://javascript30.com" target="_blank" rel="noopener">
+    <div class="res-title">JavaScript30</div>
+    <div class="res-desc">30 mini-projets JS pratiques et gratuits, sans framework, parfaits pour progresser par la pratique.</div>
+    <div class="res-url">javascript30.com</div>
+  </a>
+  <a class="res-link" href="https://jsonplaceholder.typicode.com" target="_blank" rel="noopener">
+    <div class="res-title">JSONPlaceholder</div>
+    <div class="res-desc">API de test gratuite, sans clé nécessaire — parfaite pour s'entraîner à fetch() et manipuler du JSON.</div>
+    <div class="res-url">jsonplaceholder.typicode.com</div>
+  </a>
+
+  <h2>Documentation officielle</h2>
+  <a class="res-link" href="https://developer.mozilla.org/fr/docs/Web/JavaScript" target="_blank" rel="noopener">
+    <div class="res-title">MDN Web Docs — JavaScript</div>
+    <div class="res-desc">LA référence incontournable, en français, avec exemples interactifs pour chaque fonction et méthode.</div>
+    <div class="res-url">developer.mozilla.org</div>
+  </a>
+  <a class="res-link" href="https://developer.mozilla.org/fr/docs/Learn/JavaScript" target="_blank" rel="noopener">
+    <div class="res-title">MDN — Apprendre JavaScript (tutoriel complet débutant)</div>
+    <div class="res-desc">Parcours pédagogique complet, en français, qui part de zéro — bon complément à ce cours si un point reste flou.</div>
+    <div class="res-url">developer.mozilla.org/Learn</div>
+  </a>
+
+  <h2>Chaînes / vidéos de référence</h2>
+  <a class="res-link" href="https://www.youtube.com/results?search_query=cours+javascript+d%C3%A9butant+tutoriel+fran%C3%A7ais" target="_blank" rel="noopener">
+    <div class="res-title">Recherche YouTube — tutoriels JavaScript en français</div>
+    <div class="res-desc">Recherche préconfigurée pour trouver des tutoriels vidéo récents en français.</div>
+    <div class="res-url">youtube.com</div>
+  </a>
+
+  <h2>Aide-mémoire rapide</h2>
+  <div class="grid grid-2">
+    <div class="card"><h4><code>let, const</code> (jamais var)</h4><p>Déclaration de variables</p></div>
+    <div class="card"><h4><code>===</code> (jamais ==)</h4><p>Comparaison stricte</p></div>
+    <div class="card"><h4><code>map, filter, forEach, find</code></h4><p>Méthodes de tableau essentielles</p></div>
+    <div class="card"><h4><code>querySelector, addEventListener</code></h4><p>DOM et événements</p></div>
+    <div class="card"><h4><code>async / await / fetch</code></h4><p>Requêtes asynchrones</p></div>
+    <div class="card"><h4><code>this</code></h4><p>Dépend de comment la fonction est appelée</p></div>
+  </div>
+</section>
+
+</main>
+
+<footer>Mini-site généré pour révision BTS CIEL — JavaScript</footer>
+
+<script>
+/* ---------- navigation ---------- */
+const tabs = document.querySelectorAll('nav.tabs button');
+const pages = document.querySelectorAll('section.page');
+tabs.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    tabs.forEach(b=>b.classList.remove('active'));
+    pages.forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.page).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+
+/* ---------- JS playground ---------- */
+const jsEditor = document.getElementById('js-editor');
+const jsConsole = document.getElementById('js-console');
+const domTarget = document.getElementById('dom-target');
+
+function pgLog(...args){
+  const line = document.createElement('div');
+  line.className = 'log-line';
+  line.textContent = args.map(a => {
+    if(typeof a === 'object') { try { return JSON.stringify(a); } catch(e){ return String(a); } }
+    return String(a);
+  }).join(' ');
+  jsConsole.appendChild(line);
+  jsConsole.scrollTop = jsConsole.scrollHeight;
+}
+function pgError(msg){
+  const line = document.createElement('div');
+  line.className = 'log-line log-error';
+  line.textContent = '⛔ ' + msg;
+  jsConsole.appendChild(line);
+  jsConsole.scrollTop = jsConsole.scrollHeight;
+}
+function runCode(){
+  jsConsole.innerHTML = '';
+  const code = jsEditor.value;
+  try{
+    const fn = new Function('document', 'console', code);
+    const fakeConsole = { log: pgLog, error: pgError, warn: pgLog };
+    fn(domTarget.ownerDocument, fakeConsole);
+  }catch(e){
+    pgError(e.message);
+  }
+}
+document.getElementById('js-run').addEventListener('click', runCode);
+
+const JS_PRESETS = {
+  vars: `let age = 17;
+const nom = "Amir";
+let notes = [12, 15, 8];
+
+console.log(nom, "a", age, "ans");
+console.log("Type de age :", typeof age);
+console.log("5 == '5' ?", 5 == "5");
+console.log("5 === '5' ?", 5 === "5");`,
+  array: `const notes = [12, 15, 8, 17, 6];
+
+const bonnes = notes.filter(n => n >= 10);
+console.log("Notes >= 10 :", bonnes);
+
+const notesSur20 = notes.map(n => n + "/20");
+console.log("Formatées :", notesSur20);
+
+const somme = notes.reduce((acc, n) => acc + n, 0);
+console.log("Somme :", somme);
+console.log("Moyenne :", somme / notes.length);`,
+  dom: `const target = document.getElementById("dom-target");
+target.innerHTML = "";
+
+const titre = document.createElement("h3");
+titre.textContent = "Créé par JavaScript !";
+titre.style.color = "#e3b341";
+target.appendChild(titre);
+
+const liste = document.createElement("ul");
+["Maths", "NSI", "SI"].forEach(matiere => {
+  const li = document.createElement("li");
+  li.textContent = matiere;
+  liste.appendChild(li);
+});
+target.appendChild(liste);`,
+  fetch: `async function chargerUtilisateur() {
+  console.log("Chargement en cours...");
+  const reponse = await fetch("https://jsonplaceholder.typicode.com/users/1");
+  const utilisateur = await reponse.json();
+  console.log("Nom :", utilisateur.name);
+  console.log("Email :", utilisateur.email);
+
+  const target = document.getElementById("dom-target");
+  target.textContent = utilisateur.name + " — " + utilisateur.email;
+}
+chargerUtilisateur();`
+};
+function loadPreset(name){
+  jsEditor.value = JS_PRESETS[name];
+  runCode();
+}
+document.getElementById('preset-vars').addEventListener('click', ()=>loadPreset('vars'));
+document.getElementById('preset-array').addEventListener('click', ()=>loadPreset('array'));
+document.getElementById('preset-dom').addEventListener('click', ()=>loadPreset('dom'));
+document.getElementById('preset-fetch').addEventListener('click', ()=>loadPreset('fetch'));
+loadPreset('vars');
+
+/* ---------- exercices ---------- */
+const exercices = [
+  {
+    level:"Niveau 1",
+    title:"Variables et affichage",
+    statement:"Déclarer une constante <code>prenom</code> et une variable <code>age</code>, puis afficher dans la console : \"Amir a 17 ans\" en utilisant un template literal (avec des backticks et ${...}).",
+    solution:"<pre class=\"code\">const prenom = \"Amir\";\nlet age = 17;\nconsole.log(`${prenom} a ${age} ans`);</pre><p>Les template literals (guillemets <code>`</code>) permettent d'insérer des variables directement dans une chaîne avec <code>${...}</code>, sans concaténation manuelle.</p>"
+  },
+  {
+    level:"Niveau 1",
+    title:"Fonction addition",
+    statement:"Écrire une fonction fléchée <code>addition</code> qui prend deux nombres et renvoie leur somme, puis l'appeler avec 3 et 4.",
+    solution:"<pre class=\"code\">const addition = (a, b) => a + b;\nconsole.log(addition(3, 4)); <span class=\"c1\">// -&gt; 7</span></pre>"
+  },
+  {
+    level:"Niveau 2",
+    title:"Parcourir un tableau",
+    statement:"À partir de <code>const fruits = [\"pomme\", \"banane\", \"kiwi\"];</code>, afficher chaque fruit précédé de son index, en utilisant une boucle for classique (pas forEach).",
+    solution:"<pre class=\"code\">const fruits = [\"pomme\", \"banane\", \"kiwi\"];\nfor (let i = 0; i < fruits.length; i++) {\n  console.log(i, fruits[i]);\n}</pre>"
+  },
+  {
+    level:"Niveau 2",
+    title:"Filtrer et transformer",
+    statement:"À partir de <code>const notes = [8, 15, 4, 12, 18, 6];</code>, créer un tableau ne contenant que les notes supérieures ou égales à 10, puis un second tableau contenant ces mêmes notes converties en mentions (\"Passable\" si < 14, \"Bien\" sinon).",
+    solution:"<pre class=\"code\">const notes = [8, 15, 4, 12, 18, 6];\nconst admises = notes.filter(n => n >= 10);\nconst mentions = admises.map(n => n < 14 ? \"Passable\" : \"Bien\");\nconsole.log(admises);\nconsole.log(mentions);</pre>"
+  },
+  {
+    level:"Niveau 2",
+    title:"Objet étudiant",
+    statement:"Créer un objet <code>etudiant</code> avec les propriétés <code>nom</code>, <code>notes</code> (tableau), et une méthode <code>moyenne()</code> qui calcule et renvoie la moyenne du tableau notes.",
+    solution:"<pre class=\"code\">const etudiant = {\n  nom: \"Amir\",\n  notes: [15, 12, 18],\n  moyenne() {\n    const somme = this.notes.reduce((a, n) => a + n, 0);\n    return somme / this.notes.length;\n  }\n};\nconsole.log(etudiant.moyenne());</pre>"
+  },
+  {
+    level:"Niveau 3 — type BTS",
+    title:"Ajouter un élément à une liste au clic",
+    statement:"Avec un <code>&lt;input id=\"champ\"&gt;</code>, un <code>&lt;button id=\"ajouter\"&gt;</code> et une <code>&lt;ul id=\"liste\"&gt;</code> déjà dans le HTML, écrire le JS qui, au clic sur le bouton, ajoute un nouvel <code>&lt;li&gt;</code> à la liste avec le contenu du champ, puis vide le champ.",
+    solution:"<pre class=\"code\">document.getElementById(\"ajouter\").addEventListener(\"click\", () => {\n  const champ = document.getElementById(\"champ\");\n  const li = document.createElement(\"li\");\n  li.textContent = champ.value;\n  document.getElementById(\"liste\").appendChild(li);\n  champ.value = \"\";\n});</pre>"
+  },
+  {
+    level:"Niveau 3 — type BTS",
+    title:"Formulaire avec validation",
+    statement:"Intercepter la soumission d'un formulaire (empêcher le rechargement), vérifier qu'un champ email n'est pas vide, et afficher \"Champ requis\" dans la console sinon \"Formulaire valide\".",
+    solution:"<pre class=\"code\">document.querySelector(\"form\").addEventListener(\"submit\", (event) => {\n  event.preventDefault();\n  const email = document.getElementById(\"email\").value;\n  if (email === \"\") {\n    console.log(\"Champ requis\");\n  } else {\n    console.log(\"Formulaire valide\");\n  }\n});</pre>"
+  },
+  {
+    level:"Bonus — hors programme",
+    title:"Fetch et affichage d'une API",
+    statement:"Écrire une fonction async qui récupère la liste des utilisateurs sur <code>https://jsonplaceholder.typicode.com/users</code> et affiche le nom de chacun dans la console.",
+    solution:"<pre class=\"code\">async function afficherNoms() {\n  const reponse = await fetch(\"https://jsonplaceholder.typicode.com/users\");\n  const utilisateurs = await reponse.json();\n  utilisateurs.forEach(u => console.log(u.name));\n}\nafficherNoms();</pre>"
+  },
+  {
+    level:"Bonus — hors programme",
+    title:"Closure : compteur",
+    statement:"Écrire une fonction <code>creerCompteur()</code> qui renvoie une fonction incrémentant et renvoyant un compteur interne à chaque appel, en utilisant une closure.",
+    solution:"<pre class=\"code\">function creerCompteur() {\n  let compte = 0;\n  return () => {\n    compte++;\n    return compte;\n  };\n}\nconst compteur = creerCompteur();\nconsole.log(compteur()); <span class=\"c1\">// -&gt; 1</span>\nconsole.log(compteur()); <span class=\"c1\">// -&gt; 2</span></pre>"
+  }
+];
+const exoList = document.getElementById('exo-list');
+exercices.forEach((ex)=>{
+  const acc = document.createElement('div');
+  acc.className = 'accordion';
+  acc.innerHTML = `
+    <div class="acc-head">
+      <span><span class="lvl">${ex.level}</span>${ex.title}</span>
+      <span class="acc-arrow">▶</span>
+    </div>
+    <div class="acc-body">
+      <div class="acc-body-inner">
+        <p>${ex.statement}</p>
+        <details style="margin-top:10px;">
+          <summary style="cursor:pointer;color:var(--amber);font-family:var(--mono);font-size:.85rem;">Voir la solution</summary>
+          <div style="margin-top:10px;">${ex.solution}</div>
+        </details>
+      </div>
+    </div>`;
+  acc.querySelector('.acc-head').addEventListener('click', ()=>acc.classList.toggle('open'));
+  exoList.appendChild(acc);
+});
+
+/* ---------- flashcards ---------- */
+const flashcards = [
+  {q:"Quelle est la différence entre let et var ?", a:"let a une portée de bloc (comme en Python). var a une portée de fonction et 'fuit' en dehors des blocs if/for — à éviter."},
+  {q:"Pourquoi préférer === à == ?", a:"=== compare sans convertir les types (égalité stricte). == convertit automatiquement les types avant de comparer, ce qui produit des résultats surprenants (ex: '5' == 5 est true)."},
+  {q:"Différence entre undefined et null ?", a:"undefined = variable jamais initialisée (souvent un oubli). null = absence de valeur définie volontairement par le développeur."},
+  {q:"Que renvoient map() et filter() ?", a:"Toujours un NOUVEAU tableau, sans modifier l'original."},
+  {q:"Différence entre for...of et for...in ?", a:"for...of parcourt les VALEURS d'un tableau (ou autre itérable). for...in parcourt les CLÉS d'un objet."},
+  {q:"À quoi sert querySelector() ?", a:"À sélectionner le premier élément du DOM correspondant à un sélecteur CSS (ex: '#id', '.classe')."},
+  {q:"Que fait event.preventDefault() sur un submit de formulaire ?", a:"Empêche le comportement par défaut (le rechargement de la page), pour pouvoir gérer l'envoi en JavaScript."},
+  {q:"Qu'est-ce qu'une Promise ?", a:"Un objet représentant une valeur qui sera disponible plus tard (succès via .then, échec via .catch)."},
+  {q:"Dans quel cas peut-on utiliser await ?", a:"Uniquement à l'intérieur d'une fonction marquée async."},
+  {q:"Qu'est-ce qu'une closure ?", a:"Une fonction qui garde en mémoire les variables de l'endroit où elle a été créée, même après la fin de l'exécution de cet endroit."},
+  {q:"Pourquoi une fonction fléchée n'a-t-elle pas son propre this quand elle est méthode directe d'un objet ?", a:"Elle hérite du this du contexte où elle est ÉCRITE (portée lexicale), pas de l'objet qui l'appelle."},
+  {q:"Quelle est la syntaxe pour hériter d'une classe en JS ?", a:"class Fille extends Mere { constructor() { super(...); } } — équivalent de class Fille(Mere): en Python."}
+];
+let flashIndex = 0, flipped = false;
+const flashCardEl = document.getElementById('flash-card');
+const flashFront = document.getElementById('flash-front-text');
+const flashBack = document.getElementById('flash-back-text');
+const flashCount = document.getElementById('flash-count');
+function renderFlash(){
+  flashFront.textContent = flashcards[flashIndex].q;
+  flashBack.textContent = flashcards[flashIndex].a;
+  flashCount.textContent = `${flashIndex+1} / ${flashcards.length}`;
+  flashCardEl.classList.remove('flipped');
+  flipped = false;
+}
+flashCardEl.addEventListener('click', ()=>{
+  flipped = !flipped;
+  flashCardEl.classList.toggle('flipped', flipped);
+});
+document.getElementById('flash-next').addEventListener('click', ()=>{
+  flashIndex = (flashIndex+1) % flashcards.length;
+  renderFlash();
+});
+document.getElementById('flash-prev').addEventListener('click', ()=>{
+  flashIndex = (flashIndex-1+flashcards.length) % flashcards.length;
+  renderFlash();
+});
+renderFlash();
+
+/* ---------- QCM ---------- */
+const qcm = [
+  {q:"Que vaut '5' === 5 en JavaScript ?", options:["true","false","undefined","Erreur"], correct:1},
+  {q:"Quel mot-clé faut-il éviter pour déclarer une variable ?", options:["let","const","var","Aucun, ils sont équivalents"], correct:2},
+  {q:"Quelle méthode de tableau renvoie un nouveau tableau transformé ?", options:["forEach","map","push","length"], correct:1},
+  {q:"Quelle méthode sélectionne le premier élément correspondant à un sélecteur CSS ?", options:["getElement","querySelector","selectElement","findElement"], correct:1},
+  {q:"Que fait event.preventDefault() sur la soumission d'un formulaire ?", options:["Vide le formulaire","Empêche le rechargement de la page","Supprime le formulaire","Envoie le formulaire deux fois"], correct:1},
+  {q:"await ne peut être utilisé qu'à l'intérieur d'une fonction :", options:["classique","fléchée uniquement","marquée async","globale uniquement"], correct:2},
+  {q:"Que renvoie typeof d'une variable jamais initialisée ?", options:["\"null\"","\"undefined\"","\"NaN\"","Erreur"], correct:1},
+  {q:"Dans une méthode d'objet classique (function), this désigne :", options:["La fonction elle-même","La fenêtre globale (window)","L'objet qui appelle la méthode","Toujours undefined"], correct:2},
+  {q:"Quelle boucle parcourt les VALEURS d'un tableau ?", options:["for...in","for...of","forEach uniquement","while"], correct:1},
+  {q:"Quel mot-clé permet à une classe JS d'hériter d'une autre ?", options:["inherits","extends","implements","super"], correct:1}
+];
+const qcmList = document.getElementById('qcm-list');
+qcm.forEach((item,qi)=>{
+  const div = document.createElement('div');
+  div.className = 'qcm-q';
+  div.innerHTML = `<p class="question">${qi+1}. ${item.q}</p>` +
+    item.options.map((opt,oi)=>`
+      <label class="qcm-opt">
+        <input type="radio" name="q${qi}" value="${oi}">
+        <span>${opt}</span>
+      </label>`).join('') +
+    `<div class="qcm-feedback" id="fb-${qi}"></div>`;
+  qcmList.appendChild(div);
+});
+document.getElementById('qcm-submit').addEventListener('click', ()=>{
+  let score = 0;
+  qcm.forEach((item,qi)=>{
+    const checked = document.querySelector(`input[name="q${qi}"]:checked`);
+    const fb = document.getElementById(`fb-${qi}`);
+    if(!checked){
+      fb.className = 'qcm-feedback ko';
+      fb.textContent = 'Aucune réponse sélectionnée.';
+      return;
+    }
+    if(parseInt(checked.value) === item.correct){
+      score++;
+      fb.className = 'qcm-feedback ok';
+      fb.textContent = '✓ Bonne réponse';
+    }else{
+      fb.className = 'qcm-feedback ko';
+      fb.textContent = '✗ Réponse attendue : ' + item.options[item.correct];
+    }
+  });
+  const scoreEl = document.getElementById('qcm-score');
+  scoreEl.style.display = 'block';
+  scoreEl.innerHTML = `Score : ${score} / ${qcm.length} ${score===qcm.length ? '🎉' : ''}`;
+  scoreEl.scrollIntoView({behavior:'smooth', block:'center'});
+});
+</script>
+</body>
+</html>
