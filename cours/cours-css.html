@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS — Cours interactif BTS CIEL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0d12; --panel:#11161d; --panel-2:#161c25; --border:#232b37;
+  --text:#d5dbe3; --text-dim:#7c8798; --amber:#e3b341; --green:#7ee787;
+  --red:#ff7b72; --blue:#58a6ff; --purple:#c9a6ff;
+  --mono:'JetBrains Mono', ui-monospace, monospace; --sans:'Inter', system-ui, sans-serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;}
+::selection{background:var(--amber);color:#0a0d12;}
+
+header.topbar{position:sticky;top:0;z-index:50;background:rgba(10,13,18,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+.topbar-inner{max-width:1100px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.brand{font-family:var(--mono);font-weight:700;font-size:1.05rem;color:var(--text);display:flex;align-items:center;gap:8px;}
+.brand .dot{color:var(--amber);}
+nav.tabs{display:flex;gap:4px;flex-wrap:wrap;}
+nav.tabs button{font-family:var(--mono);font-size:.82rem;background:none;border:1px solid transparent;color:var(--text-dim);padding:7px 12px;border-radius:6px;cursor:pointer;transition:.15s;}
+nav.tabs button:hover{color:var(--text);border-color:var(--border);}
+nav.tabs button.active{color:var(--bg);background:var(--amber);font-weight:600;}
+
+main{max-width:1100px;margin:0 auto;padding:32px 20px 80px;}
+section.page{display:none;animation:fade .25s ease;}
+section.page.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+h1{font-size:1.9rem;margin:0 0 6px;color:#fff;letter-spacing:-.01em;}
+h2{font-size:1.35rem;margin:40px 0 14px;color:#fff;border-bottom:1px solid var(--border);padding-bottom:10px;}
+h2:first-of-type{margin-top:0;}
+h3{font-size:1.05rem;color:var(--amber);margin:24px 0 8px;}
+p{color:var(--text);}
+.subtitle{color:var(--text-dim);font-size:1rem;margin-bottom:28px;}
+code, .mono{font-family:var(--mono);}
+code{background:var(--panel-2);border:1px solid var(--border);padding:1px 6px;border-radius:4px;font-size:.88em;color:var(--green);}
+
+pre.code{background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:.85rem;line-height:1.65;color:#c9d1d9;margin:10px 0 18px;}
+pre.code .c1{color:var(--text-dim);}
+
+.box{border-left:3px solid;border-radius:6px;padding:12px 16px;margin:16px 0;background:var(--panel);}
+.box-retenir{border-color:var(--green);}
+.box-attention{border-color:var(--red);}
+.box-title{font-family:var(--mono);font-weight:700;font-size:.78rem;letter-spacing:.03em;margin-bottom:4px;}
+.box-retenir .box-title{color:var(--green);}
+.box-attention .box-title{color:var(--red);}
+
+.toc-box{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin:0 0 30px;}
+.toc-title{font-family:var(--mono);font-size:.75rem;color:var(--text-dim);letter-spacing:.03em;margin-bottom:10px;}
+.toc-box a{display:inline-block;color:var(--blue);text-decoration:none;font-size:.85rem;margin:0 14px 8px 0;font-family:var(--mono);}
+.toc-box a:hover{text-decoration:underline;}
+.badge-plus{display:inline-block;font-family:var(--mono);font-size:.68rem;font-weight:700;color:var(--purple);border:1px solid #6e4fa3;background:rgba(160,120,255,.1);padding:1px 8px;border-radius:20px;vertical-align:middle;letter-spacing:.02em;}
+.plus-divider{display:flex;align-items:center;gap:12px;margin:44px 0 10px;color:var(--text-dim);font-family:var(--mono);font-size:.78rem;}
+.plus-divider::before,.plus-divider::after{content:"";flex:1;height:1px;background:var(--border);}
+
+.grid{display:grid;gap:16px;}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(230px,1fr));}
+.grid-3{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.card h4{margin:0 0 6px;font-size:.95rem;color:#fff;}
+.card p{margin:0;color:var(--text-dim);font-size:.88rem;}
+
+table{width:100%;border-collapse:collapse;margin:12px 0 20px;font-size:.86rem;}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);}
+th{color:var(--text-dim);font-weight:600;font-family:var(--mono);font-size:.76rem;}
+td code{white-space:nowrap;}
+
+.mindmap{display:flex;flex-direction:column;gap:10px;margin:20px 0;}
+.mm-row{display:flex;gap:10px;flex-wrap:wrap;}
+.mm-node{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:.85rem;}
+.mm-node.root{background:var(--amber);color:#0a0d12;font-weight:700;border:none;}
+
+.accordion{border:1px solid var(--border);border-radius:8px;margin:10px 0;overflow:hidden;background:var(--panel);}
+.acc-head{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;cursor:pointer;font-size:.92rem;color:var(--text);}
+.acc-head:hover{background:var(--panel-2);}
+.acc-head .lvl{font-family:var(--mono);font-size:.72rem;color:var(--amber);border:1px solid var(--amber);padding:1px 7px;border-radius:20px;margin-right:10px;}
+.acc-arrow{transition:.2s;color:var(--text-dim);}
+.accordion.open .acc-arrow{transform:rotate(90deg);}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .3s ease;border-top:1px solid transparent;}
+.accordion.open .acc-body{max-height:900px;border-top:1px solid var(--border);}
+.acc-body-inner{padding:14px 16px;}
+
+.flash-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;}
+.flash-card{width:100%;max-width:480px;height:220px;perspective:1200px;cursor:pointer;}
+.flash-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;}
+.flash-card.flipped .flash-inner{transform:rotateY(180deg);}
+.flash-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;border:1px solid var(--border);}
+.flash-front{background:var(--panel);}
+.flash-back{background:var(--panel-2);transform:rotateY(180deg);color:var(--green);}
+.flash-face p{font-size:1.05rem;font-family:var(--mono);margin:0;}
+.flash-controls{display:flex;gap:12px;align-items:center;}
+.flash-count{color:var(--text-dim);font-family:var(--mono);font-size:.85rem;}
+
+button.btn{font-family:var(--mono);background:var(--panel-2);border:1px solid var(--border);color:var(--text);padding:9px 16px;border-radius:7px;cursor:pointer;font-size:.85rem;transition:.15s;}
+button.btn:hover{border-color:var(--amber);color:var(--amber);}
+button.btn.primary{background:var(--amber);color:#0a0d12;border:none;font-weight:700;}
+button.btn.primary:hover{opacity:.9;color:#0a0d12;}
+
+.qcm-q{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:14px;}
+.qcm-q p.question{margin:0 0 10px;font-weight:600;color:#fff;}
+.qcm-opt{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;cursor:pointer;margin-bottom:4px;}
+.qcm-opt:hover{background:var(--panel-2);}
+.qcm-opt input{accent-color:var(--amber);}
+.qcm-feedback{display:none;font-size:.85rem;margin-top:8px;padding:8px 10px;border-radius:6px;font-family:var(--mono);}
+.qcm-feedback.ok{background:rgba(126,231,135,.1);color:var(--green);display:block;}
+.qcm-feedback.ko{background:rgba(255,123,114,.1);color:var(--red);display:block;}
+#qcm-score{text-align:center;font-family:var(--mono);font-size:1.3rem;padding:20px;border:1px solid var(--border);border-radius:10px;background:var(--panel);display:none;margin-top:20px;}
+
+/* sandbox CSS live */
+.sandbox-wrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0;}
+@media(max-width:820px){.sandbox-wrap{grid-template-columns:1fr;}}
+.sandbox-col{background:#0d1117;border:1px solid var(--border);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;}
+.sandbox-col-head{background:var(--panel-2);padding:8px 14px;font-family:var(--mono);font-size:.75rem;color:var(--text-dim);border-bottom:1px solid var(--border);}
+#html-editor{width:100%;height:110px;background:#0d1117;color:#c9d1d9;border:none;outline:none;font-family:var(--mono);font-size:.78rem;padding:12px;resize:vertical;line-height:1.55;border-bottom:1px solid var(--border);}
+#css-editor{width:100%;height:210px;background:#0d1117;color:#c9d1d9;border:none;outline:none;font-family:var(--mono);font-size:.78rem;padding:12px;resize:vertical;line-height:1.55;}
+#css-preview{width:100%;height:328px;border:none;background:#fff;}
+.sandbox-presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+
+.res-link{display:block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:10px;text-decoration:none;color:var(--text);transition:.15s;}
+.res-link:hover{border-color:var(--amber);}
+.res-link .res-title{color:#fff;font-weight:600;font-size:.95rem;}
+.res-link .res-desc{color:var(--text-dim);font-size:.83rem;margin-top:3px;}
+.res-link .res-url{font-family:var(--mono);color:var(--blue);font-size:.78rem;margin-top:4px;}
+
+footer{text-align:center;color:var(--text-dim);font-size:.8rem;padding:30px 20px;font-family:var(--mono);}
+
+@media(max-width:640px){
+  .topbar-inner{flex-direction:column;align-items:flex-start;}
+  nav.tabs{width:100%;overflow-x:auto;}
+  h1{font-size:1.5rem;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">{ <span class="dot">css</span> }</div>
+    <nav class="tabs">
+      <button data-page="accueil" class="active">Accueil</button>
+      <button data-page="cours">Le Cours</button>
+      <button data-page="exercices">Exercices</button>
+      <button data-page="revisions">Révisions</button>
+      <button data-page="ressources">Ressources</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- ================= ACCUEIL ================= -->
+<section class="page active" id="accueil">
+  <h1>Le langage CSS</h1>
+  <p class="subtitle">Mettre en forme une page web : sélecteurs, boîtes, Flexbox et Grid — niveau BTS CIEL.</p>
+
+  <div class="box box-retenir">
+    <div class="box-title">À RETENIR</div>
+    <strong>CSS</strong> (Cascading Style Sheets) décrit l'<strong>apparence</strong> d'une page HTML : couleurs, tailles, positionnement, mise en page. Le "C" de CSS (cascade) fait référence aux règles de priorité qui déterminent quel style s'applique quand plusieurs règles concernent le même élément.
+  </div>
+
+  <h2>Objectifs du cours</h2>
+  <div class="grid grid-3">
+    <div class="card"><h4>Cibler des éléments</h4><p>Sélecteurs simples, combinés, pseudo-classes.</p></div>
+    <div class="card"><h4>Maîtriser le modèle de boîte</h4><p>Content, padding, border, margin.</p></div>
+    <div class="card"><h4>Mettre en forme le texte</h4><p>Polices, couleurs, unités de mesure.</p></div>
+    <div class="card"><h4>Positionner les éléments</h4><p>display, position, z-index.</p></div>
+    <div class="card"><h4>Construire des mises en page</h4><p>Flexbox et Grid, la base du web moderne.</p></div>
+    <div class="card"><h4>Rendre un site responsive</h4><p>Media queries, unités relatives.</p></div>
+  </div>
+
+  <h2>Prérequis</h2>
+  <ul>
+    <li>Connaître les bases du HTML (balises, structure d'un document)</li>
+    <li>Aucune expérience préalable du CSS n'est nécessaire</li>
+  </ul>
+
+  <h2>Carte mentale du cours</h2>
+  <div class="mindmap">
+    <div class="mm-row"><div class="mm-node root">CSS</div></div>
+    <div class="mm-row">
+      <div class="mm-node">Où écrire le CSS<br><span style="color:var(--text-dim);font-size:.78rem">inline, interne, externe</span></div>
+      <div class="mm-node">Sélecteurs<br><span style="color:var(--text-dim);font-size:.78rem">élément, classe, id, pseudo</span></div>
+      <div class="mm-node">Couleurs & unités<br><span style="color:var(--text-dim);font-size:.78rem">hex, rgb, px, em, rem, %</span></div>
+    </div>
+    <div class="mm-row">
+      <div class="mm-node">Modèle de boîte<br><span style="color:var(--text-dim);font-size:.78rem">padding, border, margin</span></div>
+      <div class="mm-node">Texte & polices<br><span style="color:var(--text-dim);font-size:.78rem">font-family, line-height</span></div>
+      <div class="mm-node">Positionnement<br><span style="color:var(--text-dim);font-size:.78rem">display, position, z-index</span></div>
+    </div>
+    <div class="mm-row">
+      <div class="mm-node">Flexbox<br><span style="color:var(--text-dim);font-size:.78rem">alignement en 1 dimension</span></div>
+      <div class="mm-node">Grid & responsive<br><span style="color:var(--text-dim);font-size:.78rem">mise en page 2D, media queries</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COURS ================= -->
+<section class="page" id="cours">
+  <h1>Le cours structuré</h1>
+  <p class="subtitle">Programme BTS CIEL couvert intégralement (sections 1 à 9), puis des approfondissements signalés <span class="badge-plus">+ hors programme</span> (sections 10 à 13).</p>
+
+  <div class="toc-box">
+    <div class="toc-title">Sommaire</div>
+    <a href="#c1">1. Introduction & où écrire le CSS</a>
+    <a href="#c2">2. Sélecteurs de base</a>
+    <a href="#c3">3. Sélecteurs avancés & pseudo-classes</a>
+    <a href="#c4">4. Couleurs et unités</a>
+    <a href="#c5">5. Le modèle de boîte</a>
+    <a href="#c6">6. Texte et polices</a>
+    <a href="#c7">7. Positionnement (display, position)</a>
+    <a href="#c8">8. Flexbox</a>
+    <a href="#c9">9. Grid et responsive</a>
+    <a href="#c10">10. Cascade et spécificité <span class="badge-plus">+</span></a>
+    <a href="#c11">11. Transitions et animations <span class="badge-plus">+</span></a>
+    <a href="#c12">12. Variables CSS <span class="badge-plus">+</span></a>
+    <a href="#c13">13. Méthodologie BEM <span class="badge-plus">+</span></a>
+  </div>
+
+  <h2 id="c1">1. Introduction : à quoi sert le CSS et où l'écrire</h2>
+  <p>Le CSS s'applique à des éléments HTML via des <strong>règles</strong>, composées d'un <strong>sélecteur</strong> (qui cibler) et d'un bloc de <strong>déclarations</strong> (propriété: valeur) :</p>
+  <pre class="code">p {
+  color: navy;
+  font-size: 16px;
+}</pre>
+  <p>Trois façons d'intégrer du CSS à une page, par ordre de priorité croissante :</p>
+  <table>
+    <tr><th>Méthode</th><th>Exemple</th><th>Usage recommandé</th></tr>
+    <tr><td>Externe</td><td><code>&lt;link rel="stylesheet" href="style.css"&gt;</code></td><td><strong>La méthode à privilégier</strong> : CSS réutilisable sur plusieurs pages, mis en cache par le navigateur</td></tr>
+    <tr><td>Interne</td><td><code>&lt;style&gt; p { color: navy; } &lt;/style&gt;</code> dans le <code>&lt;head&gt;</code></td><td>Pour une page unique et autonome (démo, email)</td></tr>
+    <tr><td>Inline</td><td><code>&lt;p style="color: navy;"&gt;</code></td><td>À éviter : mélange contenu et style, impossible à réutiliser, priorité très élevée qui complique la maintenance</td></tr>
+  </table>
+
+  <h2 id="c2">2. Sélecteurs de base</h2>
+  <pre class="code">p { color: navy; }              <span class="c1">/* tous les éléments p */</span>
+.important { color: red; }      <span class="c1">/* tous les éléments avec class="important" */</span>
+#titre { font-size: 2em; }      <span class="c1">/* l'élément unique avec id="titre" */</span>
+* { margin: 0; }                <span class="c1">/* sélecteur universel : tous les éléments */</span>
+h1, h2, h3 { font-weight: bold; } <span class="c1">/* groupement : plusieurs sélecteurs, une seule règle */</span></pre>
+  <table>
+    <tr><th>Sélecteur</th><th>Cible</th></tr>
+    <tr><td><code>element</code></td><td>Toutes les balises de ce type</td></tr>
+    <tr><td><code>.classe</code></td><td>Tous les éléments ayant cette classe (réutilisable)</td></tr>
+    <tr><td><code>#id</code></td><td>L'élément unique ayant cet id</td></tr>
+    <tr><td><code>*</code></td><td>Tous les éléments de la page</td></tr>
+  </table>
+
+  <h2 id="c3">3. Sélecteurs avancés et pseudo-classes</h2>
+  <pre class="code">div p { color: red; }        <span class="c1">/* descendant : tout p à l'intérieur d'un div, à n'importe quel niveau */</span>
+div > p { color: red; }      <span class="c1">/* enfant DIRECT uniquement */</span>
+h1 + p { margin-top: 0; }    <span class="c1">/* le p immédiatement après un h1 */</span>
+input[type="email"] { }      <span class="c1">/* sélecteur d'attribut */</span>
+
+a:hover { color: orange; }       <span class="c1">/* au survol de la souris */</span>
+li:first-child { font-weight: bold; } <span class="c1">/* premier enfant de son parent */</span>
+li:nth-child(2) { color: blue; }      <span class="c1">/* le 2e enfant précisément */</span>
+input:focus { border-color: blue; }   <span class="c1">/* champ actif (cliqué dedans) */</span>
+
+p::first-letter { font-size: 2em; }   <span class="c1">/* pseudo-élément : cible une PARTIE de l'élément */</span>
+.box::before { content: "→ "; }       <span class="c1">/* insère du contenu avant l'élément */</span></pre>
+  <div class="box box-attention">
+    <div class="box-title">ATTENTION — pseudo-classe vs pseudo-élément</div>
+    Une <strong>pseudo-classe</strong> (un seul <code>:</code>, ex : <code>:hover</code>) cible un <strong>état</strong> d'un élément existant. Un <strong>pseudo-élément</strong> (deux <code>:</code>, ex : <code>::before</code>) crée ou cible une <strong>sous-partie</strong> de l'élément qui n'existe pas forcément dans le HTML.
+  </div>
+
+  <h2 id="c4">4. Couleurs et unités de mesure</h2>
+  <table>
+    <tr><th>Format de couleur</th><th>Exemple</th></tr>
+    <tr><td>Mot-clé</td><td><code>color: tomato;</code></td></tr>
+    <tr><td>Hexadécimal</td><td><code>color: #ff6347;</code></td></tr>
+    <tr><td>RGB</td><td><code>color: rgb(255, 99, 71);</code></td></tr>
+    <tr><td>RGBA (avec transparence)</td><td><code>color: rgba(255, 99, 71, 0.5);</code></td></tr>
+    <tr><td>HSL (teinte, saturation, luminosité)</td><td><code>color: hsl(9, 100%, 64%);</code></td></tr>
+  </table>
+  <table>
+    <tr><th>Unité</th><th>Type</th><th>Signification</th></tr>
+    <tr><td><code>px</code></td><td>Absolue</td><td>Pixel — taille fixe, ne s'adapte pas</td></tr>
+    <tr><td><code>%</code></td><td>Relative</td><td>Pourcentage de la taille du parent</td></tr>
+    <tr><td><code>em</code></td><td>Relative</td><td>Multiple de la taille de police de l'élément <strong>parent</strong></td></tr>
+    <tr><td><code>rem</code></td><td>Relative</td><td>Multiple de la taille de police de la <strong>racine</strong> (html) — plus prévisible que em</td></tr>
+    <tr><td><code>vw</code> / <code>vh</code></td><td>Relative</td><td>Pourcentage de la largeur / hauteur de la fenêtre (viewport)</td></tr>
+  </table>
+  <div class="box box-retenir">
+    <div class="box-title">À RETENIR</div>
+    <code>rem</code> est généralement préférée à <code>em</code> pour les tailles de police : comme <code>em</code> se cumule à chaque niveau d'imbrication (un enfant dans un enfant voit sa taille multipliée plusieurs fois), les calculs deviennent vite imprévisibles. <code>rem</code> reste toujours relative à une seule référence fixe.
+  </div>
+
+  <h2 id="c5">5. Le modèle de boîte (box model)</h2>
+  <p>Chaque élément HTML est représenté comme une <strong>boîte rectangulaire</strong>, composée de 4 couches, de l'intérieur vers l'extérieur :</p>
+  <pre class="code">.boite {
+  width: 200px;
+  padding: 20px;       /* espace intérieur, entre le contenu et la bordure */
+  border: 2px solid black;
+  margin: 10px;        /* espace extérieur, entre la boîte et ses voisines */
+}</pre>
+  <table>
+    <tr><th>Couche</th><th>Rôle</th></tr>
+    <tr><td>Content</td><td>Le contenu lui-même (texte, image...)</td></tr>
+    <tr><td>Padding</td><td>Espace intérieur, entre le contenu et la bordure — a la couleur de fond de l'élément</td></tr>
+    <tr><td>Border</td><td>La bordure, visible</td></tr>
+    <tr><td>Margin</td><td>Espace extérieur, transparent, entre cette boîte et ses voisines</td></tr>
+  </table>
+  <div class="box box-attention">
+    <div class="box-title">ATTENTION — box-sizing</div>
+    Par défaut (<code>box-sizing: content-box</code>), <code>width</code> ne concerne que le contenu : la largeur <strong>totale</strong> affichée est <code>width + padding + border</code>. Avec <code>box-sizing: border-box</code> (très recommandé, souvent appliqué globalement avec <code>* { box-sizing: border-box; }</code>), <code>width</code> inclut le padding et la bordure — beaucoup plus intuitif à calculer.
+  </div>
+  <p>Raccourcis pour <code>margin</code>/<code>padding</code> : <code>margin: 10px;</code> (les 4 côtés), <code>margin: 10px 20px;</code> (haut/bas puis gauche/droite), <code>margin: 10px 20px 5px 15px;</code> (haut, droite, bas, gauche — sens horaire).</p>
+
+  <h2 id="c6">6. Texte et polices</h2>
+  <pre class="code">p {
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: bold;
+  font-style: italic;
+  text-align: center;
+  line-height: 1.6;
+  text-decoration: underline;
+  text-transform: uppercase;
+}</pre>
+  <table>
+    <tr><th>Propriété</th><th>Rôle</th></tr>
+    <tr><td><code>font-family</code></td><td>Liste de polices par ordre de préférence, avec une police générique en secours (<code>sans-serif</code>, <code>serif</code>, <code>monospace</code>)</td></tr>
+    <tr><td><code>font-weight</code></td><td>Graisse : <code>normal</code>, <code>bold</code>, ou valeur numérique (100 à 900)</td></tr>
+    <tr><td><code>line-height</code></td><td>Hauteur de ligne — une valeur sans unité (ex : <code>1.6</code>) est un multiple de la taille de police, recommandé pour la lisibilité</td></tr>
+    <tr><td><code>text-align</code></td><td>Alignement horizontal du texte : <code>left</code>, <code>center</code>, <code>right</code>, <code>justify</code></td></tr>
+  </table>
+
+  <h2 id="c7">7. Positionnement : <code>display</code> et <code>position</code></h2>
+  <table>
+    <tr><th>Valeur de display</th><th>Comportement</th></tr>
+    <tr><td><code>block</code></td><td>Prend toute la largeur disponible, saut de ligne avant/après (ex : <code>div</code>, <code>p</code>)</td></tr>
+    <tr><td><code>inline</code></td><td>Ne prend que la largeur nécessaire, pas de saut de ligne ; <code>width</code>/<code>height</code> sans effet (ex : <code>span</code>, <code>a</code>)</td></tr>
+    <tr><td><code>inline-block</code></td><td>Comme inline (pas de saut de ligne) mais accepte width/height/margin vertical</td></tr>
+    <tr><td><code>none</code></td><td>L'élément disparaît complètement de la page (contrairement à <code>visibility: hidden</code>, qui laisse un espace vide)</td></tr>
+  </table>
+  <table>
+    <tr><th>Valeur de position</th><th>Comportement</th></tr>
+    <tr><td><code>static</code></td><td>Comportement par défaut, dans le flux normal</td></tr>
+    <tr><td><code>relative</code></td><td>Déplacé (avec top/left/etc.) par rapport à sa position normale, mais laisse son emplacement d'origine "réservé"</td></tr>
+    <tr><td><code>absolute</code></td><td>Positionné par rapport à son ancêtre positionné le plus proche (relative/absolute/fixed), sorti du flux normal</td></tr>
+    <tr><td><code>fixed</code></td><td>Positionné par rapport à la fenêtre du navigateur, reste visible même en scrollant</td></tr>
+    <tr><td><code>sticky</code></td><td>Se comporte comme relative, puis devient fixed une fois un seuil de scroll atteint</td></tr>
+  </table>
+  <div class="box box-retenir">
+    <div class="box-title">À RETENIR</div>
+    <code>z-index</code> détermine l'ordre d'empilement des éléments positionnés qui se chevauchent (plus la valeur est grande, plus l'élément est "au-dessus") — il n'a d'effet que sur un élément dont <code>position</code> n'est pas <code>static</code>.
+  </div>
+
+  <h2 id="c8">8. Flexbox : aligner en une dimension</h2>
+  <pre class="code">.conteneur {
+  display: flex;
+  flex-direction: row;         /* row (défaut) ou column */
+  justify-content: center;     /* alignement sur l'axe principal */
+  align-items: center;         /* alignement sur l'axe perpendiculaire */
+  flex-wrap: wrap;             /* autorise le retour à la ligne */
+  gap: 16px;                   /* espace entre les éléments */
+}</pre>
+  <table>
+    <tr><th>Propriété</th><th>Valeurs utiles</th></tr>
+    <tr><td><code>justify-content</code></td><td><code>flex-start</code>, <code>center</code>, <code>flex-end</code>, <code>space-between</code>, <code>space-around</code></td></tr>
+    <tr><td><code>align-items</code></td><td><code>flex-start</code>, <code>center</code>, <code>flex-end</code>, <code>stretch</code></td></tr>
+    <tr><td><code>flex: 1</code></td><td>Sur un enfant : lui fait occuper l'espace disponible restant</td></tr>
+  </table>
+  <div class="box box-retenir">
+    <div class="box-title">À RETENIR</div>
+    Le duo <code>display: flex; justify-content: center; align-items: center;</code> sur un conteneur est la façon moderne standard de <strong>centrer un élément horizontalement et verticalement</strong> — bien plus simple que les anciennes méthodes.
+  </div>
+
+  <h2 id="c9">9. Grid et mise en page responsive</h2>
+  <pre class="code">.conteneur {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;   /* 3 colonnes égales */
+  grid-template-columns: repeat(3, 1fr); /* équivalent, plus lisible */
+  gap: 16px;
+}
+
+/* Media query : adapte le style selon la largeur d'écran */
+@media (max-width: 600px) {
+  .conteneur {
+    grid-template-columns: 1fr;  /* 1 seule colonne sur mobile */
+  }
+}</pre>
+  <table>
+    <tr><th>Flexbox</th><th>Grid</th></tr>
+    <tr><td>Une seule dimension (ligne OU colonne)</td><td>Deux dimensions (lignes ET colonnes) simultanément</td></tr>
+    <tr><td>Idéal pour aligner des éléments dans une barre, une liste</td><td>Idéal pour une mise en page globale de page (galerie, tableau de bord)</td></tr>
+  </table>
+  <div class="box box-attention">
+    <div class="box-title">ATTENTION</div>
+    Une <strong>media query</strong> ne modifie jamais le HTML : elle applique des règles CSS <strong>différentes</strong> selon des conditions (largeur d'écran, orientation...). L'approche recommandée est <em>mobile-first</em> : écrire le CSS de base pour mobile, puis ajouter des <code>@media (min-width: ...)</code> pour les écrans plus grands.
+  </div>
+
+  <h3>🧪 Bac à sable : éditez HTML + CSS et voyez le résultat en direct</h3>
+  <div class="sandbox-presets">
+    <button class="btn" id="preset-box">Modèle de boîte</button>
+    <button class="btn" id="preset-flex">Centrage Flexbox</button>
+    <button class="btn" id="preset-grid">Grille responsive</button>
+    <button class="btn" id="preset-hover">Effet au survol</button>
+  </div>
+  <div class="sandbox-wrap">
+    <div class="sandbox-col">
+      <div class="sandbox-col-head">HTML</div>
+      <textarea id="html-editor" spellcheck="false"></textarea>
+      <div class="sandbox-col-head">CSS</div>
+      <textarea id="css-editor" spellcheck="false"></textarea>
+    </div>
+    <div class="sandbox-col">
+      <div class="sandbox-col-head">Aperçu</div>
+      <iframe id="css-preview" title="Aperçu CSS"></iframe>
+    </div>
+  </div>
+
+  <div class="plus-divider"><span>Sections suivantes hors programme BTS — pour approfondir</span></div>
+
+  <h2 id="c10">10. Cascade et spécificité <span class="badge-plus">+ hors programme</span></h2>
+  <p>Quand plusieurs règles CSS ciblent le même élément avec des propriétés contradictoires, le navigateur choisit selon la <strong>spécificité</strong> (plus précis l'emporte), puis, à spécificité égale, selon l'<strong>ordre d'apparition</strong> (le dernier l'emporte) :</p>
+  <table>
+    <tr><th>Sélecteur</th><th>Poids (approximatif)</th></tr>
+    <tr><td>Élément (<code>p</code>)</td><td>1</td></tr>
+    <tr><td>Classe (<code>.ma-classe</code>), attribut, pseudo-classe</td><td>10</td></tr>
+    <tr><td>Id (<code>#mon-id</code>)</td><td>100</td></tr>
+    <tr><td>Style inline (<code>style="..."</code>)</td><td>1000</td></tr>
+    <tr><td><code>!important</code></td><td>Passe outre presque toute la cascade normale</td></tr>
+  </table>
+  <div class="box box-attention">
+    <div class="box-title">ATTENTION</div>
+    <code>!important</code> doit rester exceptionnel : il casse la logique normale de la cascade et rend le CSS difficile à maintenir (le seul moyen de le contrer est un autre <code>!important</code> encore plus spécifique).
+  </div>
+
+  <h2 id="c11">11. Transitions et animations <span class="badge-plus">+ hors programme</span></h2>
+  <pre class="code">.bouton {
+  background: tomato;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+.bouton:hover {
+  background: darkred;
+  transform: scale(1.05);
+}
+
+@keyframes apparition {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.carte {
+  animation: apparition 0.5s ease-out;
+}</pre>
+  <p><code>transition</code> anime le passage <strong>entre deux états</strong> (ex : normal → survol). <code>@keyframes</code> + <code>animation</code> permettent des animations plus riches, avec plusieurs étapes, indépendantes d'une interaction utilisateur.</p>
+
+  <h2 id="c12">12. Variables CSS (custom properties) <span class="badge-plus">+ hors programme</span></h2>
+  <pre class="code">:root {
+  --couleur-principale: #e3b341;
+  --espacement: 16px;
+}
+
+.bouton {
+  background: var(--couleur-principale);
+  padding: var(--espacement);
+}
+.bouton:hover {
+  background: color-mix(in srgb, var(--couleur-principale) 80%, black);
+}</pre>
+  <div class="box box-retenir">
+    <div class="box-title">À RETENIR</div>
+    Contrairement aux préprocesseurs comme Sass, les variables CSS natives (<code>--nom</code>) sont <strong>vivantes</strong> : elles peuvent être modifiées dynamiquement en JavaScript ou selon le contexte (ex : un mode sombre défini en redéfinissant les mêmes variables dans un autre sélecteur), sans recompilation.
+  </div>
+
+  <h2 id="c13">13. Méthodologie BEM et organisation du CSS <span class="badge-plus">+ hors programme</span></h2>
+  <p>Sur un vrai projet, un CSS mal organisé devient vite ingérable. La méthodologie <strong>BEM</strong> (Block Element Modifier) structure le nommage des classes pour éviter les conflits :</p>
+  <pre class="code">&lt;div class="carte carte--mise-en-avant"&gt;
+  &lt;h2 class="carte__titre"&gt;Titre&lt;/h2&gt;
+  &lt;p class="carte__texte"&gt;Texte&lt;/p&gt;
+&lt;/div&gt;
+
+.carte { }                 /* Block */
+.carte__titre { }          /* Element : carte__element */
+.carte--mise-en-avant { }  /* Modifier : carte--modificateur */</pre>
+  <p>Cette convention rend le CSS plus prévisible en évitant les sélecteurs imbriqués trop profonds et les conflits de spécificité. Sur de plus gros projets, des frameworks comme <strong>Tailwind CSS</strong> (classes utilitaires) ou <strong>Bootstrap</strong> (composants prêts à l'emploi) sont aussi très répandus en entreprise.</p>
+</section>
+
+<!-- ================= EXERCICES ================= -->
+<section class="page" id="exercices">
+  <h1>Exercices d'application</h1>
+  <p class="subtitle">Du basique au cas type examen BTS. Cliquez sur un exercice pour voir l'énoncé, puis dépliez la solution.</p>
+  <div id="exo-list"></div>
+</section>
+
+<!-- ================= REVISIONS ================= -->
+<section class="page" id="revisions">
+  <h1>Révisions interactives</h1>
+  <p class="subtitle">Flashcards pour la mémoire, QCM pour valider vos acquis.</p>
+
+  <h2>📇 Flashcards</h2>
+  <div class="flash-wrap">
+    <div class="flash-card" id="flash-card">
+      <div class="flash-inner">
+        <div class="flash-face flash-front"><p id="flash-front-text"></p></div>
+        <div class="flash-face flash-back"><p id="flash-back-text"></p></div>
+      </div>
+    </div>
+    <div class="flash-controls">
+      <button class="btn" id="flash-prev">← Précédent</button>
+      <span class="flash-count" id="flash-count">1 / 10</span>
+      <button class="btn" id="flash-next">Suivant →</button>
+    </div>
+    <p style="color:var(--text-dim);font-size:.85rem;">Cliquez sur la carte pour la retourner</p>
+  </div>
+
+  <h2>✅ QCM final</h2>
+  <div id="qcm-list"></div>
+  <div style="text-align:center;margin-top:16px;">
+    <button class="btn primary" id="qcm-submit">Valider mes réponses</button>
+  </div>
+  <div id="qcm-score"></div>
+</section>
+
+<!-- ================= RESSOURCES ================= -->
+<section class="page" id="ressources">
+  <h1>Ressources complémentaires</h1>
+  <p class="subtitle">Pour aller plus loin et s'entraîner en continu.</p>
+
+  <h2>Outils interactifs</h2>
+  <a class="res-link" href="https://flexboxfroggy.com/#fr" target="_blank" rel="noopener">
+    <div class="res-title">Flexbox Froggy</div>
+    <div class="res-desc">Jeu progressif pour apprendre Flexbox en plaçant des grenouilles sur des nénuphars — en français.</div>
+    <div class="res-url">flexboxfroggy.com</div>
+  </a>
+  <a class="res-link" href="https://cssgridgarden.com/#fr" target="_blank" rel="noopener">
+    <div class="res-title">Grid Garden</div>
+    <div class="res-desc">Même principe que Flexbox Froggy, mais pour apprendre CSS Grid en arrosant un jardin.</div>
+    <div class="res-url">cssgridgarden.com</div>
+  </a>
+  <a class="res-link" href="https://codepen.io" target="_blank" rel="noopener">
+    <div class="res-title">CodePen</div>
+    <div class="res-desc">Éditeur en ligne HTML/CSS/JS avec aperçu live, idéal pour s'entraîner et voir des exemples réels.</div>
+    <div class="res-url">codepen.io</div>
+  </a>
+
+  <h2>Documentation officielle</h2>
+  <a class="res-link" href="https://developer.mozilla.org/fr/docs/Web/CSS" target="_blank" rel="noopener">
+    <div class="res-title">MDN Web Docs — CSS</div>
+    <div class="res-desc">Référence la plus complète sur toutes les propriétés CSS, en français, avec exemples interactifs.</div>
+    <div class="res-url">developer.mozilla.org</div>
+  </a>
+  <a class="res-link" href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/" target="_blank" rel="noopener">
+    <div class="res-title">CSS-Tricks — Guide complet de Flexbox</div>
+    <div class="res-desc">Référence visuelle très populaire, régulièrement citée comme la meilleure pour Flexbox et Grid.</div>
+    <div class="res-url">css-tricks.com</div>
+  </a>
+
+  <h2>Chaînes / vidéos de référence</h2>
+  <a class="res-link" href="https://www.youtube.com/results?search_query=cours+css+flexbox+grid+tutoriel+fran%C3%A7ais" target="_blank" rel="noopener">
+    <div class="res-title">Recherche YouTube — tutoriels CSS/Flexbox/Grid en français</div>
+    <div class="res-desc">Recherche préconfigurée pour trouver des tutoriels vidéo récents en français.</div>
+    <div class="res-url">youtube.com</div>
+  </a>
+
+  <h2>Aide-mémoire rapide</h2>
+  <div class="grid grid-2">
+    <div class="card"><h4><code>.classe, #id, element</code></h4><p>Sélecteurs de base</p></div>
+    <div class="card"><h4><code>padding, border, margin</code></h4><p>Modèle de boîte</p></div>
+    <div class="card"><h4><code>px, %, em, rem, vw/vh</code></h4><p>Unités de mesure</p></div>
+    <div class="card"><h4><code>display: flex + justify/align</code></h4><p>Centrage et alignement</p></div>
+    <div class="card"><h4><code>display: grid + grid-template-columns</code></h4><p>Mise en page en grille</p></div>
+    <div class="card"><h4><code>@media (max-width: ...)</code></h4><p>Responsive</p></div>
+  </div>
+</section>
+
+</main>
+
+<footer>Mini-site généré pour révision BTS CIEL — CSS</footer>
+
+<script>
+/* ---------- navigation ---------- */
+const tabs = document.querySelectorAll('nav.tabs button');
+const pages = document.querySelectorAll('section.page');
+tabs.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    tabs.forEach(b=>b.classList.remove('active'));
+    pages.forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.page).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+
+/* ---------- sandbox CSS live ---------- */
+const htmlEditor = document.getElementById('html-editor');
+const cssEditor = document.getElementById('css-editor');
+const preview = document.getElementById('css-preview');
+function updatePreview(){
+  const doc = preview.contentDocument || preview.contentWindow.document;
+  const fullDoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:sans-serif;margin:0;padding:16px;}${cssEditor.value}</style></head><body>${htmlEditor.value}</body></html>`;
+  doc.open();
+  doc.write(fullDoc);
+  doc.close();
+}
+htmlEditor.addEventListener('input', updatePreview);
+cssEditor.addEventListener('input', updatePreview);
+
+const PRESETS = {
+  box: {
+    html: `<div class="boite">Contenu</div>`,
+    css: `.boite {
+  width: 200px;
+  padding: 20px;
+  border: 4px solid #333;
+  margin: 20px;
+  background: #e3b341;
+  box-sizing: border-box;
+}`
+  },
+  flex: {
+    html: `<div class="conteneur">
+  <div class="item">1</div>
+  <div class="item">2</div>
+  <div class="item">3</div>
+</div>`,
+    css: `.conteneur {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  height: 200px;
+  background: #eee;
+}
+.item {
+  width: 60px;
+  height: 60px;
+  background: #e3b341;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-weight: bold;
+}`
+  },
+  grid: {
+    html: `<div class="grille">
+  <div class="carte">A</div>
+  <div class="carte">B</div>
+  <div class="carte">C</div>
+  <div class="carte">D</div>
+</div>`,
+    css: `.grille {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.carte {
+  background: #e3b341;
+  padding: 20px;
+  text-align: center;
+  border-radius: 8px;
+  font-weight: bold;
+}
+@media (max-width: 300px) {
+  .grille { grid-template-columns: 1fr; }
+}`
+  },
+  hover: {
+    html: `<button class="bouton">Survole-moi</button>`,
+    css: `.bouton {
+  padding: 12px 24px;
+  background: #e3b341;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+.bouton:hover {
+  background: #c98a12;
+  transform: scale(1.08);
+}`
+  }
+};
+function loadPreset(name){
+  htmlEditor.value = PRESETS[name].html;
+  cssEditor.value = PRESETS[name].css;
+  updatePreview();
+}
+document.getElementById('preset-box').addEventListener('click', ()=>loadPreset('box'));
+document.getElementById('preset-flex').addEventListener('click', ()=>loadPreset('flex'));
+document.getElementById('preset-grid').addEventListener('click', ()=>loadPreset('grid'));
+document.getElementById('preset-hover').addEventListener('click', ()=>loadPreset('hover'));
+loadPreset('box');
+
+/* ---------- exercices ---------- */
+const exercices = [
+  {
+    level:"Niveau 1",
+    title:"Sélecteurs de base",
+    statement:"Écrire des règles CSS pour : tous les paragraphes en gris, tous les éléments de classe \"alerte\" en rouge et gras, l'élément d'id \"titre-principal\" avec une taille de 32px.",
+    solution:"<pre class=\"code\">p { color: gray; }\n.alerte { color: red; font-weight: bold; }\n#titre-principal { font-size: 32px; }</pre>"
+  },
+  {
+    level:"Niveau 1",
+    title:"Modèle de boîte",
+    statement:"Créer une classe \"carte\" avec une largeur de 250px, un padding de 16px, une bordure grise de 1px, un margin de 10px, et box-sizing: border-box.",
+    solution:"<pre class=\"code\">.carte {\n  width: 250px;\n  padding: 16px;\n  border: 1px solid gray;\n  margin: 10px;\n  box-sizing: border-box;\n}</pre>"
+  },
+  {
+    level:"Niveau 2",
+    title:"Centrer un bloc avec Flexbox",
+    statement:"Écrire le CSS permettant de centrer horizontalement et verticalement un élément \".contenu\" à l'intérieur de son parent \".conteneur\", qui fait toute la hauteur de l'écran (100vh).",
+    solution:"<pre class=\"code\">.conteneur {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  height: 100vh;\n}</pre>"
+  },
+  {
+    level:"Niveau 2",
+    title:"Effet au survol",
+    statement:"Sur un bouton de classe \".btn\", ajouter une transition fluide de 0.3s sur la couleur de fond, qui devient plus foncée au survol (:hover).",
+    solution:"<pre class=\"code\">.btn {\n  background: #4a90d9;\n  transition: background 0.3s ease;\n}\n.btn:hover {\n  background: #2c5f8a;\n}</pre>"
+  },
+  {
+    level:"Niveau 2",
+    title:"Grille de 3 colonnes",
+    statement:"Créer une grille CSS de 3 colonnes égales avec un espacement de 20px entre les éléments, en utilisant grid-template-columns.",
+    solution:"<pre class=\"code\">.grille {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 20px;\n}</pre>"
+  },
+  {
+    level:"Niveau 3 — type BTS",
+    title:"Mise en page responsive complète",
+    statement:"Créer une grille de 4 cartes qui s'affiche sur 4 colonnes sur grand écran, 2 colonnes sur tablette (max-width: 900px), et 1 colonne sur mobile (max-width: 500px).",
+    solution:"<pre class=\"code\">.grille {\n  display: grid;\n  grid-template-columns: repeat(4, 1fr);\n  gap: 16px;\n}\n\n@media (max-width: 900px) {\n  .grille { grid-template-columns: repeat(2, 1fr); }\n}\n\n@media (max-width: 500px) {\n  .grille { grid-template-columns: 1fr; }\n}</pre>"
+  },
+  {
+    level:"Niveau 3 — type BTS",
+    title:"Calculer la spécificité",
+    statement:"Entre les deux règles suivantes, laquelle s'applique à un élément <code>&lt;p id=\"intro\" class=\"texte\"&gt;</code>, et pourquoi ? <pre class=\"code\">p.texte { color: blue; }\n#intro { color: red; }</pre>",
+    solution:"<p>C'est <code>#intro { color: red; }</code> qui s'applique : un sélecteur d'id a un poids de spécificité (100) supérieur à un sélecteur combinant élément + classe (1 + 10 = 11), quel que soit l'ordre d'écriture des règles.</p>"
+  },
+  {
+    level:"Bonus — hors programme",
+    title:"Variables CSS pour un thème",
+    statement:"Définir une variable CSS --couleur-accent sur :root, puis l'utiliser dans une règle .bouton pour sa couleur de fond.",
+    solution:"<pre class=\"code\">:root {\n  --couleur-accent: #e3b341;\n}\n.bouton {\n  background: var(--couleur-accent);\n}</pre>"
+  }
+];
+const exoList = document.getElementById('exo-list');
+exercices.forEach((ex)=>{
+  const acc = document.createElement('div');
+  acc.className = 'accordion';
+  acc.innerHTML = `
+    <div class="acc-head">
+      <span><span class="lvl">${ex.level}</span>${ex.title}</span>
+      <span class="acc-arrow">▶</span>
+    </div>
+    <div class="acc-body">
+      <div class="acc-body-inner">
+        <p>${ex.statement}</p>
+        <details style="margin-top:10px;">
+          <summary style="cursor:pointer;color:var(--amber);font-family:var(--mono);font-size:.85rem;">Voir la solution</summary>
+          <div style="margin-top:10px;">${ex.solution}</div>
+        </details>
+      </div>
+    </div>`;
+  acc.querySelector('.acc-head').addEventListener('click', ()=>acc.classList.toggle('open'));
+  exoList.appendChild(acc);
+});
+
+/* ---------- flashcards ---------- */
+const flashcards = [
+  {q:"Quelle est la façon recommandée d'intégrer du CSS à un site multi-pages ?", a:"Un fichier CSS externe lié avec <link rel=\"stylesheet\">, réutilisable et mis en cache par le navigateur."},
+  {q:"Différence entre un sélecteur de classe et un sélecteur d'id ?", a:"Une classe (.nom) peut être réutilisée sur plusieurs éléments. Un id (#nom) doit être unique sur la page et a une spécificité plus forte."},
+  {q:"Que cible la pseudo-classe :hover ?", a:"L'état d'un élément survolé par la souris."},
+  {q:"Quelle unité de taille de police est relative à la racine (html) plutôt qu'au parent direct ?", a:"rem (contrairement à em, relative au parent direct)."},
+  {q:"Dans le modèle de boîte, que fait le padding ?", a:"Il ajoute un espace intérieur entre le contenu et la bordure de l'élément, avec la couleur de fond de l'élément."},
+  {q:"Quelle propriété box-sizing fait que width inclut le padding et la bordure ?", a:"box-sizing: border-box."},
+  {q:"Différence entre position: relative et position: absolute ?", a:"relative déplace l'élément par rapport à sa position normale en laissant un espace réservé. absolute le sort du flux et le positionne par rapport à son ancêtre positionné le plus proche."},
+  {q:"Quelle propriété centre des éléments horizontalement ET verticalement avec Flexbox ?", a:"display: flex; justify-content: center; align-items: center; sur le conteneur parent."},
+  {q:"Différence principale entre Flexbox et Grid ?", a:"Flexbox aligne sur une seule dimension (ligne ou colonne). Grid gère deux dimensions simultanément (lignes et colonnes)."},
+  {q:"À quoi sert une media query comme @media (max-width: 600px) ?", a:"À appliquer des règles CSS différentes selon la largeur de l'écran, pour un design responsive."},
+  {q:"Quel est l'ordre de spécificité, du plus faible au plus fort : élément, classe, id ?", a:"Élément (1) < classe (10) < id (100), le style inline et !important étant encore plus prioritaires."},
+  {q:"Comment déclarer et utiliser une variable CSS native ?", a:"La déclarer avec --nom: valeur; (souvent sur :root), puis l'utiliser avec var(--nom)."}
+];
+let flashIndex = 0, flipped = false;
+const flashCardEl = document.getElementById('flash-card');
+const flashFront = document.getElementById('flash-front-text');
+const flashBack = document.getElementById('flash-back-text');
+const flashCount = document.getElementById('flash-count');
+function renderFlash(){
+  flashFront.textContent = flashcards[flashIndex].q;
+  flashBack.textContent = flashcards[flashIndex].a;
+  flashCount.textContent = `${flashIndex+1} / ${flashcards.length}`;
+  flashCardEl.classList.remove('flipped');
+  flipped = false;
+}
+flashCardEl.addEventListener('click', ()=>{
+  flipped = !flipped;
+  flashCardEl.classList.toggle('flipped', flipped);
+});
+document.getElementById('flash-next').addEventListener('click', ()=>{
+  flashIndex = (flashIndex+1) % flashcards.length;
+  renderFlash();
+});
+document.getElementById('flash-prev').addEventListener('click', ()=>{
+  flashIndex = (flashIndex-1+flashcards.length) % flashcards.length;
+  renderFlash();
+});
+renderFlash();
+
+/* ---------- QCM ---------- */
+const qcm = [
+  {q:"Quel sélecteur cible tous les éléments ayant class=\"alerte\" ?", options:["#alerte",".alerte","*alerte","alerte"], correct:1},
+  {q:"Quelle couche du modèle de boîte a la couleur de fond de l'élément ?", options:["margin","border","padding","aucune"], correct:2},
+  {q:"Quelle unité est relative à la taille de police de la racine (html) ?", options:["em","px","rem","vh"], correct:2},
+  {q:"Quelle valeur de display fait disparaître complètement un élément, sans laisser d'espace ?", options:["visibility: hidden","display: none","opacity: 0","display: block"], correct:1},
+  {q:"Quelle propriété Flexbox centre les éléments sur l'axe principal ?", options:["align-items","justify-content","flex-wrap","gap"], correct:1},
+  {q:"Combien de dimensions CSS Grid gère-t-il simultanément ?", options:["1","2","3","Aucune limite"], correct:1},
+  {q:"Quel sélecteur a la spécificité la plus élevée ?", options:["Un élément (p)","Une classe (.ma-classe)","Un id (#mon-id)","Le sélecteur universel (*)"], correct:2},
+  {q:"Que fait transition sur une propriété CSS ?", options:["Change la couleur au chargement","Anime le passage entre deux états","Crée une animation en boucle infinie","Cache l'élément"], correct:1},
+  {q:"Comment déclare-t-on une variable CSS native ?", options:["$nom: valeur;","--nom: valeur;","@nom: valeur;","var nom = valeur;"], correct:1},
+  {q:"À quoi sert principalement une media query ?", options:["Changer le contenu HTML selon l'écran","Appliquer des styles CSS différents selon la largeur/l'écran","Charger un fichier CSS différent","Accélérer le chargement de la page"], correct:1}
+];
+const qcmList = document.getElementById('qcm-list');
+qcm.forEach((item,qi)=>{
+  const div = document.createElement('div');
+  div.className = 'qcm-q';
+  div.innerHTML = `<p class="question">${qi+1}. ${item.q}</p>` +
+    item.options.map((opt,oi)=>`
+      <label class="qcm-opt">
+        <input type="radio" name="q${qi}" value="${oi}">
+        <span>${opt}</span>
+      </label>`).join('') +
+    `<div class="qcm-feedback" id="fb-${qi}"></div>`;
+  qcmList.appendChild(div);
+});
+document.getElementById('qcm-submit').addEventListener('click', ()=>{
+  let score = 0;
+  qcm.forEach((item,qi)=>{
+    const checked = document.querySelector(`input[name="q${qi}"]:checked`);
+    const fb = document.getElementById(`fb-${qi}`);
+    if(!checked){
+      fb.className = 'qcm-feedback ko';
+      fb.textContent = 'Aucune réponse sélectionnée.';
+      return;
+    }
+    if(parseInt(checked.value) === item.correct){
+      score++;
+      fb.className = 'qcm-feedback ok';
+      fb.textContent = '✓ Bonne réponse';
+    }else{
+      fb.className = 'qcm-feedback ko';
+      fb.textContent = '✗ Réponse attendue : ' + item.options[item.correct];
+    }
+  });
+  const scoreEl = document.getElementById('qcm-score');
+  scoreEl.style.display = 'block';
+  scoreEl.innerHTML = `Score : ${score} / ${qcm.length} ${score===qcm.length ? '🎉' : ''}`;
+  scoreEl.scrollIntoView({behavior:'smooth', block:'center'});
+});
+</script>
+</body>
+</html>
